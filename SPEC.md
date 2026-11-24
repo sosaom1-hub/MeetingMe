@@ -124,7 +124,7 @@ MeetingRecorder/        iPhone app: Library/ Detail/ Record/ Processing/ Export/
 MeetingRecorder Watch App/   Recording/ Transfer/
 MeetingRecorderTests/   Swift Testing, logic only
 SPEC.md  tasks/plan.md  tasks/todo.md
-.claude/skills/         swiftui-pro, swiftdata-pro, swift-concurrency-pro, swift-testing-pro
+.claude/skills/         (local only, git-ignored) swiftui-pro, swiftdata-pro, swift-concurrency-pro, swift-testing-pro
 ```
 
 ## 7. Code style

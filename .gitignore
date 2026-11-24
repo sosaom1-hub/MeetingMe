@@ -14,3 +14,6 @@ mac-server/.venv/
 mac-server/model/
 mac-server/*.log
 .DS_Store
+
+# Third-party Claude skills: kept locally, not redistributed
+.claude/skills/
