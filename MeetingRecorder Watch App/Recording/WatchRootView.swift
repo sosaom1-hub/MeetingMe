@@ -26,6 +26,7 @@ struct WatchRootView: View {
         case .idle:
             TabView {
                 HomeView()
+                PhoneRemoteView()
                 RecentListView()
                 WatchSettingsView()
             }

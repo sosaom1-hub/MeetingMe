@@ -18,6 +18,38 @@ final class WatchTransferService: NSObject {
 
     private(set) var recent: [RecentItem] = []
     private(set) var isPhoneReachable = false
+    /// The iPhone recorder, as last reported; nil until the iPhone answers. Stale when `isPhoneReachable` is false.
+    private(set) var phoneState: RemoteState?
+    /// When `phoneState` arrived, so the remote can count elapsed time between updates.
+    private(set) var phoneStateReceivedAt = Date.distantPast
+
+    /// Sends a remote command to the iPhone and applies the state it replies with.
+    /// Throws `RemoteError` with Thai text for the user.
+    func sendRemote(_ command: RemoteCommand) async throws {
+        let session = WCSession.default
+        guard session.activationState == .activated, session.isReachable else {
+            throw RemoteError(message: "ติดต่อ iPhone ไม่ได้")
+        }
+        let state: RemoteState = try await withCheckedThrowingContinuation { continuation in
+            session.sendMessage(command.message) { reply in
+                if let message = reply[TransferMessage.error] as? String {
+                    continuation.resume(throwing: RemoteError(message: message))
+                } else if let state = RemoteState(message: reply) {
+                    continuation.resume(returning: state)
+                } else {
+                    continuation.resume(throwing: RemoteError(message: "iPhone ตอบกลับไม่ถูกต้อง"))
+                }
+            } errorHandler: { _ in
+                continuation.resume(throwing: RemoteError(message: "ติดต่อ iPhone ไม่ได้"))
+            }
+        }
+        apply(state)
+    }
+
+    private func apply(_ state: RemoteState) {
+        phoneState = state
+        phoneStateReceivedAt = .now
+    }
 
     private let root: URL
     private static let keptFinishedRecordings = 10
@@ -115,6 +147,11 @@ final class WatchTransferService: NSObject {
     }
 }
 
+struct RemoteError: LocalizedError {
+    let message: String
+    var errorDescription: String? { message }
+}
+
 extension WatchTransferService: WCSessionDelegate {
     nonisolated func session(
         _ session: WCSession,
@@ -126,6 +163,7 @@ extension WatchTransferService: WCSessionDelegate {
             Self.applyConsentText(consent)
             self.resendPending()
             self.refresh()
+            if self.isPhoneReachable { try? await self.sendRemote(.status) }
         }
     }
 
@@ -141,7 +179,15 @@ extension WatchTransferService: WCSessionDelegate {
     }
 
     nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
-        Task { @MainActor in self.refresh() }
+        Task { @MainActor in
+            self.refresh()
+            if self.isPhoneReachable { try? await self.sendRemote(.status) }
+        }
+    }
+
+    nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        guard let state = RemoteState(message: message) else { return }
+        Task { @MainActor in self.apply(state) }
     }
 
     nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {

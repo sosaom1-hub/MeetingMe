@@ -17,7 +17,7 @@ If a Claude session stops (usage limit, context full, crash), files on disk are 
 |---|---|---|---|
 | app-apple-watch-ai-da | v3 Tasks 24 → 25 → 26 → 23 (iPhone intents, import audio, iPad, speakers) | Shared/Intents/, Shared/Recording/*, Shared/Model/*, MeetingRecorder/Import/, MeetingRecorder/Library/*, project.yml (device family) | Task 24: move recording intents to Shared, add iPhone App Shortcuts |
 | app-apple-watch-ai-6c | Task 2 R1 device test plan (no app code) | docs/r1-watch-background.md | Plan written; user runs it on a real Ultra 4 and fills in results |
-| app-apple-watch-ai-5e | iPhone "Claude บน Mac" summary button (then Batch B on hold) | Processing/SummarySheet.swift, Processing/MacASRProvider.swift, mac-server/server.py | Add askClaude to MacASRProvider + button in SummarySheet |
+| app-apple-watch-ai-5e | v3 Watch Batch B (B1 done; B2, B3 next) | Watch/Phone TransferService, Shared/Transfer/*, Watch App/Remote/ + Status/, iPhone calendar + notifications | B2: decide background URLSession for transcription before Watch notifications (6c pitfall) |
 
 ## How to resume in a new session
 
