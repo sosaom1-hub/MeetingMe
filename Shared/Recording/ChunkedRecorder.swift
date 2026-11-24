@@ -30,6 +30,14 @@ final class ChunkedRecorder {
     private(set) var level: Float = 0
     /// Why the last recording stopped early, in Thai, when it was not stopped by the user.
     private(set) var stopReason: String?
+    /// True after about a minute of near-silence (microphone covered?).
+    private(set) var isSilent = false
+    /// Estimated hours of recording left (battery or storage, whichever ends first); nil until known.
+    private(set) var hoursLeft: Double?
+
+    /// Below this battery level the recorder closes the current chunk and stops, so the audio is not lost
+    /// to a sudden shutdown.
+    nonisolated static let stopBatteryLevel: Float = 0.10
 
     /// Called after each chunk file is closed, with the manifest that now lists it and the chunk index.
     var onChunkClosed: ((RecordingManifest, Int) -> Void)?
@@ -43,6 +51,10 @@ final class ChunkedRecorder {
     private var currentIndex = 0
     private var ticker: Task<Void, Never>?
     private var interruptionObserver: (any NSObjectProtocol)?
+    private var silence = SilenceDetector()
+    private var tickCount = 0
+    private var batteryAtStart: Float?
+    private var batteryStartElapsed: TimeInterval = 0
 
     init(source: RecordingManifest.Source, root: URL = RecordingPaths.root) {
         self.source = source
@@ -138,6 +150,12 @@ final class ChunkedRecorder {
         try openChunk(index)
         elapsed = manifest?.totalDuration ?? 0
         stopReason = nil
+        silence.reset()
+        isSilent = false
+        let preflight = PreflightStatus.current()
+        batteryAtStart = preflight.batteryLevel
+        batteryStartElapsed = elapsed
+        hoursLeft = preflight.hoursOfAudioLeft
         phase = .recording
         saveManifest()
         observeInterruptions()
@@ -183,9 +201,32 @@ final class ChunkedRecorder {
         recorder.updateMeters()
         level = max(0, min(1, (recorder.averagePower(forChannel: 0) + 50) / 50))
         elapsed = (manifest?.totalDuration ?? 0) + recorder.currentTime
+        isSilent = silence.update(level: level, at: elapsed)
+
+        tickCount += 1
+        if tickCount % 120 == 0 { // every 30 s
+            checkBudget()
+            guard phase == .recording else { return }
+        }
+
         if recorder.currentTime >= RecordingDefaults.chunkDuration {
             rotate()
         }
+    }
+
+    /// Updates "hours left" and stops cleanly before the battery runs out.
+    private func checkBudget() {
+        let status = PreflightStatus.current()
+        if let battery = status.batteryLevel, battery < Self.stopBatteryLevel {
+            finish(as: .interrupted, reason: "แบตเตอรี่ต่ำกว่า 10% จึงหยุดบันทึกและเก็บเสียงไว้แล้ว")
+            return
+        }
+        hoursLeft = RecordingBudget.hoursLeft(
+            batteryAtStart: batteryAtStart,
+            batteryNow: status.batteryLevel,
+            elapsed: elapsed - batteryStartElapsed,
+            freeBytes: status.freeBytes
+        )
     }
 
     private func rotate() {
@@ -213,6 +254,7 @@ final class ChunkedRecorder {
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         elapsed = manifest?.totalDuration ?? elapsed
         level = 0
+        isSilent = false
         stopReason = reason
         phase = .stopped(status)
         if let manifest {

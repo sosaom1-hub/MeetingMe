@@ -26,6 +26,7 @@ struct WatchRootView: View {
             TabView {
                 HomeView()
                 RecentListView()
+                WatchSettingsView()
             }
             .tabViewStyle(.verticalPage)
         case .recording:

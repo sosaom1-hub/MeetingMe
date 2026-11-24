@@ -51,6 +51,9 @@ struct PhoneRecordingView: View {
                 .scaleEffect(1.6)
                 .padding(.vertical)
 
+            RecordingHealthLine(isSilent: recorder.isSilent, hoursLeft: recorder.hoursLeft)
+                .sensoryFeedback(trigger: recorder.isSilent) { _, silent in silent ? .warning : nil }
+
             HStack {
                 if markerCount > 0 {
                     Label("\(markerCount) จุดสำคัญ", systemImage: "star.fill")

@@ -5,6 +5,7 @@ struct RecordingView: View {
     @Environment(\.isLuminanceReduced) private var isLuminanceReduced
     /// Marker type chosen with the Digital Crown (index into `MarkerKind.allCases`).
     @State private var markerIndex = 0
+    @AppStorage(WatchSettings.periodicHaptic) private var periodicHaptic = false
 
     private var markerCount: Int { recorder.markerCount }
     private var markerKind: MarkerKind { MarkerKind(rawValue: markerIndex) ?? .important }
@@ -39,6 +40,8 @@ struct RecordingView: View {
             if !isLuminanceReduced {
                 LevelMeter(level: recorder.level)
             }
+
+            RecordingHealthLine(isSilent: recorder.isSilent, hoursLeft: recorder.hoursLeft)
 
             Spacer(minLength: 0)
 
@@ -88,5 +91,10 @@ struct RecordingView: View {
         )
         .sensoryFeedback(.impact, trigger: markerCount)
         .sensoryFeedback(.selection, trigger: markerIndex)
+        .sensoryFeedback(trigger: recorder.isSilent) { _, silent in silent ? .warning : nil }
+        // Optional reassurance that recording is still running: one light tap every 10 minutes.
+        .sensoryFeedback(trigger: Int(recorder.elapsed / 600)) { _, block in
+            periodicHaptic && block > 0 ? .impact(weight: .light) : nil
+        }
     }
 }
