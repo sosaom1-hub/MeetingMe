@@ -5,6 +5,7 @@ options:
   deploymentTarget:
     iOS: "27.0"
     watchOS: "27.0"
+    macOS: "27.0"
   createIntermediateGroups: true
 
 settings:
@@ -28,6 +29,11 @@ targets:
     sources:
       - MeetingRecorder
       - Shared
+    info:
+      path: MeetingRecorder/Info.plist
+      properties:
+        # Keeps recording when the iPhone screen locks.
+        UIBackgroundModes: [audio]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_PREFIX)
@@ -59,6 +65,29 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_PREFIX).watchkitapp
 
+  MeetingRecorder Server:
+    type: application
+    platform: macOS
+    sources:
+      - MeetingRecorder Mac
+    info:
+      path: MeetingRecorder Mac/Info.plist
+      properties:
+        CFBundleDisplayName: บันทึกประชุม Server
+        # Menu bar only: no Dock icon.
+        LSUIElement: true
+        # Repository root, so the app finds mac-server/ and scripts/. Override with defaults key "repositoryPath".
+        MRRepositoryPath: $(SRCROOT)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_PREFIX).server
+        # "Sign to Run Locally": never expires, needs no Apple account.
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        DEVELOPMENT_TEAM: ""
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: NO
+
   MeetingRecorderTests:
     type: bundle.unit-test
     platform: iOS
@@ -85,3 +114,7 @@ schemes:
     build:
       targets:
         MeetingRecorder Watch App: all
+  MeetingRecorder Server:
+    build:
+      targets:
+        MeetingRecorder Server: all

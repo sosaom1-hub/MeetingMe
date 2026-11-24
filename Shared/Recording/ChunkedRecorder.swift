@@ -31,6 +31,11 @@ final class ChunkedRecorder {
     /// Why the last recording stopped early, in Thai, when it was not stopped by the user.
     private(set) var stopReason: String?
 
+    /// Called after each chunk file is closed, with the manifest that now lists it and the chunk index.
+    var onChunkClosed: ((RecordingManifest, Int) -> Void)?
+    /// Called once a recording ends (finished or interrupted) and its manifest is saved.
+    var onFinish: ((RecordingManifest) -> Void)?
+
     private let root: URL
     private let source: RecordingManifest.Source
     private var planner: ChunkPlanner?
@@ -142,6 +147,10 @@ final class ChunkedRecorder {
         let duration = liveDuration > 0 ? liveDuration : RecordingPaths.duration(of: url)
         guard duration > 0 else { return }
         manifest?.chunks.append(.init(index: currentIndex, fileName: ChunkPlanner.fileName(for: currentIndex), duration: duration))
+        saveManifest()
+        if let manifest {
+            onChunkClosed?(manifest, currentIndex)
+        }
     }
 
     private func tick() {
@@ -185,6 +194,9 @@ final class ChunkedRecorder {
         level = 0
         stopReason = reason
         phase = .stopped(status)
+        if let manifest {
+            onFinish?(manifest)
+        }
     }
 
     private func saveManifest() {

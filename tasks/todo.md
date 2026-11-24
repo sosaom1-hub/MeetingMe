@@ -54,7 +54,7 @@ Tests run only when the user asks.
   - Size: S
   - Dependencies: 4
 
-- [ ] **Task 6: iPhone recording screen**
+- [x] **Task 6: iPhone recording screen** (done 2026-11-24; full-screen recorder, background audio mode, crash recovery into library)
   - Acceptance: same flow on iPhone using `ChunkedRecorder`; the recording becomes a meeting in the library directly (no transfer).
   - Verify: simulator recording produces chunk files.
   - Files: `MeetingRecorder/Record/RecordView.swift`, `MeetingRecorder/Record/PhoneRecordingModel.swift`
@@ -66,21 +66,21 @@ Tests run only when the user asks.
 
 ## Phase C — Transfer + library
 
-- [ ] **Task 7: Watch → iPhone chunk transfer**
+- [x] **Task 7: Watch → iPhone chunk transfer** (code done 2026-11-24; ack-before-delete, resend on activation, recent list. Real paired-device test pending)
   - Acceptance: each closed chunk is queued with `transferFile` plus manifest metadata; iPhone saves it to Application Support and acks; Watch deletes only acked chunks; Watch recent list shows `บนนาฬิกา / กำลังส่ง n/m / อยู่บน iPhone`.
   - Verify: paired simulators; device test with iPhone out of range, then reconnect.
   - Files: `Shared/Transfer/TransferMessage.swift`, `MeetingRecorder Watch App/Transfer/WatchTransferService.swift`, `MeetingRecorder/Transfer/PhoneTransferService.swift`, `MeetingRecorder Watch App/Recording/RecentListView.swift`
   - Size: M
   - Dependencies: 5
 
-- [ ] **Task 8: SwiftData store + library list**
+- [x] **Task 8: SwiftData store + library list** (done 2026-11-24; out-of-order manifest tests pass)
   - Acceptance: `Meeting`/`Chunk` models (CloudKit-compatible shape) behind `MeetingStore`; list with title/date/duration/status/badges; search; sort by date/title; empty/error states.
   - Verify: build; meetings persist across relaunch in the simulator.
   - Files: `MeetingRecorder/Persistence/Meeting.swift`, `…/MeetingStore.swift`, `MeetingRecorder/Library/LibraryView.swift`, `…/MeetingRow.swift`
   - Size: M
   - Dependencies: 3, 7
 
-- [ ] **Task 9: Meeting detail basics**
+- [x] **Task 9: Meeting detail basics** (done 2026-11-24; seamless playback across chunks, marker jump, delete confirmation)
   - Acceptance: rename, date/duration, playback across chunks with progress, delete with a confirmation that lists what is removed.
   - Verify: simulator check.
   - Files: `MeetingRecorder/Detail/MeetingDetailView.swift`, `…/ChunkPlayer.swift`, `…/DeleteConfirmation.swift`
@@ -92,7 +92,7 @@ Tests run only when the user asks.
 
 ## Phase D — Transcription (Mac)
 
-- [ ] **Task 10: Native macOS menu-bar app "MeetingRecorder Server"** (decided 2026-11-24: native Mac app replaces the launchd plist)
+- [x] **Task 10: Native macOS menu-bar app "MeetingRecorder Server"** (done 2026-11-24; verified: starts server, auto-restarts after kill in 23 s, stops on quit. "Last jobs" list skipped)
   - Acceptance: SwiftUI `MenuBarExtra` app (macOS target in `project.yml`) starts the Python ASR server as a child process on 127.0.0.1:18081, restarts it on crash, shows status (loading / ready / error) and the last jobs; "Open at login" via `SMAppService`; `mac-server/setup.sh` reproduces the venv + model download; README for `tailscale serve --bg 18081`.
   - Verify: build the macOS target; launch → health ready; quit → server process gone; from iPhone over Tailscale → health OK.
   - Files: `project.yml`, `MeetingRecorder Mac/MeetingRecorderServerApp.swift`, `MeetingRecorder Mac/ASRServerProcess.swift`, `MeetingRecorder Mac/ServerMenuView.swift`, `mac-server/setup.sh`

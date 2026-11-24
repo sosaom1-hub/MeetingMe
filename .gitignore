@@ -8,3 +8,9 @@ xcuserdata/
 *.xcodeproj/
 .claude/scheduled_tasks.lock
 scripts/signing.env
+
+# Mac ASR server: local venv, model weights (~2.4 GB) and logs
+mac-server/.venv/
+mac-server/model/
+mac-server/*.log
+.DS_Store

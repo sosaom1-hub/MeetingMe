@@ -34,6 +34,10 @@ struct ConsentSheet: View {
                 .tint(Theme.recording)
                 .frame(maxWidth: .infinity)
             }
+            .scenePadding()
         }
+        #if os(iOS)
+        .presentationDetents([.medium, .large])
+        #endif
     }
 }

@@ -1,17 +1,17 @@
+import SwiftData
 import SwiftUI
 
 @main
 struct MeetingRecorderApp: App {
+    @State private var recorder = ChunkedRecorder(source: .phone)
+    @State private var transfer = PhoneTransferService()
+
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                ContentUnavailableView(
-                    "ยังไม่มีการบันทึก",
-                    systemImage: "waveform",
-                    description: Text("เริ่มบันทึกประชุมจาก Apple Watch หรือ iPhone")
-                )
-                .navigationTitle("บันทึกประชุม")
-            }
+            PhoneRootView()
+                .environment(recorder)
+                .environment(transfer)
         }
+        .modelContainer(for: Meeting.self)
     }
 }

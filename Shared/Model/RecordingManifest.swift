@@ -42,14 +42,20 @@ nonisolated struct RecordingManifest: Codable, Hashable, Sendable, Identifiable 
         chunks.reduce(0) { $0 + $1.duration }
     }
 
+    func encoded() throws -> Data {
+        try Self.encoder.encode(self)
+    }
+
+    static func decode(_ data: Data) throws -> RecordingManifest {
+        try decoder.decode(RecordingManifest.self, from: data)
+    }
+
     func write(to directory: URL) throws {
-        let data = try Self.encoder.encode(self)
-        try data.write(to: directory.appending(path: Self.fileName), options: .atomic)
+        try encoded().write(to: directory.appending(path: Self.fileName), options: .atomic)
     }
 
     static func read(from directory: URL) throws -> RecordingManifest {
-        let data = try Data(contentsOf: directory.appending(path: fileName))
-        return try decoder.decode(RecordingManifest.self, from: data)
+        try decode(Data(contentsOf: directory.appending(path: fileName)))
     }
 
     private static let encoder: JSONEncoder = {
