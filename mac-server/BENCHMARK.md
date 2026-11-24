@@ -47,6 +47,20 @@ Defaults chosen for the app: `latency_ms=1120` (fastest and most accurate for ba
 
 Integration test `transcribesThaiM4AOnLocalMacServer` passes from the iPhone simulator against this server.
 
+## Experiment — 2026-11-24, phrase boosting (rejected)
+
+Goal: fix names and English terms (IT, Microsoft Teams, วิภา…) without retraining. 5 synthetic `say -v Kanya` sentences,
+`th-mix`, 1120 ms, 11 key phrases, NeMo 3.1 `boosting_tree`.
+
+| decoding | result |
+|---|---|
+| greedy_batch, alpha 0.5 / 1.0 | no change, or worse (`dashboard` → `Sball`) |
+| greedy_batch, alpha 2.0 | hallucinates listed phrases where they were not spoken (`SharePoint`, `Share`) |
+| malsd_batch beam + boosting | fails: NeMo does not support partial hypotheses (our streaming decode) in batched beam search |
+
+Not used. Fix names and terms after transcription instead (glossary in the Claude summary prompt).
+Fine-tuning needs an NVIDIA GPU and hours of labeled meeting audio; not possible on this Mac.
+
 ## Next
 
 Run 3: a real 5-min meeting recorded on Apple Watch Ultra 4 (wrist audio, real speakers, room noise). Needed before
