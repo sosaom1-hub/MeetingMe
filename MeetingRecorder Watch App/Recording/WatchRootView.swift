@@ -12,6 +12,7 @@ struct WatchRootView: View {
         .sensoryFeedback(trigger: recorder.phase) { _, newPhase in
             switch newPhase {
             case .recording: .start
+            case .paused: .stop
             case .stopped(.interrupted): .warning
             case .stopped: .stop
             case .idle: nil
@@ -29,7 +30,7 @@ struct WatchRootView: View {
                 WatchSettingsView()
             }
             .tabViewStyle(.verticalPage)
-        case .recording:
+        case .recording, .paused:
             RecordingView()
         case .stopped(let status):
             StoppedView(status: status)

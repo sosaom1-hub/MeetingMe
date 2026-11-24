@@ -8,7 +8,7 @@ struct StartRecordingIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard WatchServices.recorder.phase != .recording else {
+        guard !WatchServices.recorder.isActive else {
             return .result(dialog: "กำลังบันทึกอยู่แล้ว")
         }
         WatchServices.requests.startRequestedAt = .now
@@ -24,7 +24,7 @@ struct StopRecordingIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let recorder = WatchServices.recorder
-        guard recorder.phase == .recording else {
+        guard recorder.isActive else {
             return .result(dialog: "ตอนนี้ไม่ได้บันทึกอยู่")
         }
         recorder.stop()

@@ -8,6 +8,8 @@ final class ChunkedRecorder {
     enum Phase: Equatable {
         case idle
         case recording
+        /// Paused within the same recording. The current chunk is closed on pause, so a crash while paused loses nothing.
+        case paused
         case stopped(RecordingManifest.Status)
     }
 
@@ -87,6 +89,31 @@ final class ChunkedRecorder {
         finish(as: .finished, reason: nil)
     }
 
+    /// Recording or paused: a recording is in progress and must be stopped before another starts.
+    var isActive: Bool {
+        phase == .recording || phase == .paused
+    }
+
+    /// Pauses without ending the recording. Closes the current chunk file so it is complete on disk.
+    func pause() {
+        guard phase == .recording else { return }
+        closeChunk()
+        level = 0
+        isSilent = false
+        silence.reset()
+        phase = .paused
+    }
+
+    /// Continues a paused recording in a new chunk of the same recording (same meeting, same timeline).
+    func resumeFromPause() throws {
+        guard phase == .paused else { return }
+        try ensureStorage()
+        try AVAudioSession.sharedInstance().setActive(true)
+        try openChunk(currentIndex + 1)
+        saveManifest()
+        phase = .recording
+    }
+
     func addMarker() {
         addMarker(.important)
     }
@@ -124,7 +151,7 @@ final class ChunkedRecorder {
     }
 
     func reset() {
-        guard phase != .recording else { return }
+        guard !isActive else { return }
         phase = .idle
         manifest = nil
         planner = nil
@@ -241,7 +268,7 @@ final class ChunkedRecorder {
     }
 
     private func finish(as status: RecordingManifest.Status, reason: String?) {
-        guard phase == .recording else { return }
+        guard isActive else { return }
         ticker?.cancel()
         ticker = nil
         closeChunk()

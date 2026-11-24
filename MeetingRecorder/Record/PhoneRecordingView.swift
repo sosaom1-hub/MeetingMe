@@ -14,7 +14,7 @@ struct PhoneRecordingView: View {
     var body: some View {
         Group {
             switch recorder.phase {
-            case .recording:
+            case .recording, .paused:
                 recording
             case .stopped(let status):
                 StoppedView(status: status)
@@ -26,6 +26,7 @@ struct PhoneRecordingView: View {
         .sensoryFeedback(trigger: recorder.phase) { _, newPhase in
             switch newPhase {
             case .recording: .start
+            case .paused: .stop
             case .stopped(.interrupted): .warning
             case .stopped: .success
             case .idle: nil
@@ -35,8 +36,15 @@ struct PhoneRecordingView: View {
 
     private var recording: some View {
         VStack {
-            RecordingDot()
-                .font(.headline)
+            Group {
+                if recorder.phase == .paused {
+                    Label("หยุดชั่วคราว", systemImage: "pause.circle.fill")
+                        .foregroundStyle(.secondary)
+                } else {
+                    RecordingDot()
+                }
+            }
+            .font(.headline)
 
             Spacer()
 
@@ -74,13 +82,19 @@ struct PhoneRecordingView: View {
             GlassEffectContainer {
                 HStack {
                     Button("จุดสำคัญ", systemImage: "star.fill", action: recorder.addMarker)
+                        .labelStyle(.iconOnly)
                         .buttonStyle(.glass)
+                        .disabled(recorder.phase == .paused)
 
                     Button("โน้ต", systemImage: "note.text.badge.plus") {
                         // The note belongs to the moment the user decided to write it, not when they finish typing.
                         noteTime = recorder.elapsed
                     }
+                    .labelStyle(.iconOnly)
                     .buttonStyle(.glass)
+                    .disabled(recorder.phase == .paused)
+
+                    PauseButton()
 
                     Button("หยุดบันทึก", systemImage: "stop.fill", action: recorder.stop)
                         .buttonStyle(.glassProminent)

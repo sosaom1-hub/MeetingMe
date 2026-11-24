@@ -19,7 +19,13 @@ struct RecordingView: View {
     var body: some View {
         VStack {
             HStack {
-                RecordingDot()
+                if recorder.phase == .paused {
+                    Label("หยุดชั่วคราว", systemImage: "pause.circle.fill")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                } else {
+                    RecordingDot()
+                }
                 Spacer()
                 if markerCount > 0 {
                     Label("\(markerCount)", systemImage: "bookmark.fill")
@@ -70,6 +76,9 @@ struct RecordingView: View {
                         let count = MarkerKind.allCases.count
                         markerIndex = (markerIndex + (direction == .increment ? 1 : count - 1)) % count
                     }
+                    .disabled(recorder.phase == .paused)
+
+                    PauseButton()
 
                     StopButton(action: recorder.stop)
                 }

@@ -164,7 +164,7 @@ struct SettingsView: View {
             Button("ลบข้อมูลทั้งหมด…", systemImage: "trash", role: .destructive) {
                 isConfirmingDeleteAll = true
             }
-            .disabled(meetings.isEmpty || recorder.phase == .recording)
+            .disabled(meetings.isEmpty || recorder.isActive)
         }
     }
 
