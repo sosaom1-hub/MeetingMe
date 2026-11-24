@@ -1,6 +1,6 @@
 # Spec: Meeting Recorder (Apple Watch + iPhone + personal Mac server)
 
-Status: **DRAFT v2 — provider decisions approved 2026-11-24; Xcode project and git questions still open (§12).** No app code exists yet.
+Status: **v2 approved 2026-11-24 (sections 0–12). v3 feature expansion (section 13) is a PROPOSAL awaiting approval.** Tasks 1, 3 and 4 are built; see `tasks/todo.md`.
 
 ## 0. Verified environment (2026-11-24)
 
@@ -175,3 +175,61 @@ Manual device checks: 30+ min Watch recording wrist-down, call mid-recording, tr
 1. **Xcode project creation:** user creates it in Xcode (“iOS App with Watch App”, name `MeetingRecorder`), or Claude generates it with XcodeGen (`brew install xcodegen`)?
 2. **Git:** OK to `git init` inside this folder, separate from parent `~/Desktop/Code` repo?
 3. **Tailscale:** install the Mac app + iOS app and sign in (needs the user; Claude cannot log in for you).
+
+## 13. v3 proposal: reach the feature level of leading AI note-taker apps
+
+Status: **PROPOSAL, not approved.** Benchmark app: "Recco: AI Meeting Note Taker" (Next Pixel Ltd, App Store id6757509070, read 2026-11-24). We copy **capabilities only**: no name, branding, layout, art, or text.
+
+### 13.1 Feature comparison
+
+| Capability (per Recco's listing) | Ours today | v3 plan |
+|---|---|---|
+| Record on iPhone, iPad, Apple Watch | Watch + iPhone (built/planned) | Add iPad (same iOS target, adaptive layout) |
+| Full transcription | Thai/English via OpenThai on own Mac | Same |
+| Speaker labels | Off (server's speaker mode drops words) | New server endpoint: split-at-pause ASR + separate diarization pass, merged by timestamp (§13.3) |
+| AI summary, decisions, action items | Claude app hand-off | Same, plus templates per recording type |
+| Context-aware notes (lecture / meeting / interview) | — | Recording type picker → prompt template |
+| Translate summary | Language choice in prompt | Same, any language Claude supports |
+| AI chat over one or many notes | — | "ถาม AI": pick notes + question → Claude app hand-off |
+| Follow-up email draft | — | Prompt template |
+| Search transcript and summary | Planned (title search) | Full-text search across transcripts, summaries, own notes |
+| Edit transcript and AI notes; own notes | — | Edit transcript lines, edit pasted summary, typed notes during and after recording |
+| Export transcript | TXT/PDF/DOCX planned | Same, plus audio export (Recco users ask for this) |
+| One-tap record from Home Screen | — | iPhone widget + Control Center control (also assignable to the iPhone 17 Pro Action button) + Live Activity while recording + Siri/Shortcuts via App Intents |
+| Watch quick record + sync | Built (sync in Task 7) | Same; Watch Smart Stack widget later (decided) |
+| Share via web link | — | **Not planned**: needs a cloud server; share files instead |
+| Web search / "deep thinking" | — | Covered by the Claude app during hand-off |
+| Import audio / documents / social links | — | Import audio files from Files → transcribe. Documents and links not planned |
+
+### 13.2 Where we deliberately differ (selling points for personal use)
+- Audio never leaves the user's own devices (Watch → iPhone → own Mac). Recco's App Store privacy label lists audio data linked to the user and used for analytics, plus tracking identifiers.
+- No account, no subscription, no per-minute limits. Recco sells minute packs (e.g. Weekly Pro 300 min ฿249–299, Annual Pro ฿1,990–2,990).
+- ASR model tuned for Thai (12,373 h Thai training audio).
+- Trade-off: summaries and AI chat need one manual hand-off step to the Claude app.
+
+### 13.3 Speaker labels approach (to verify in benchmark)
+The bundled `mode=meeting` decodes one stream, which the model card says drops speech after pauses. Instead, a small endpoint of our own on the Mac server:
+1. Transcribe with `transcribe_long` (split at pauses), which returns `segments[{start,end,text}]`.
+2. Run `Diarizer.segments(audio)` (nvidia/Nemotron-3-Diarization, OpenMDW-1.1, ~downloaded once) on the whole meeting.
+3. Give each ASR segment the speaker that overlaps it most. Speakers stay anonymous ("ผู้พูด 1, 2…"); the user can rename them, and renames apply to the whole meeting.
+Diarization needs the whole meeting, so it runs after all chunks have arrived. A per-chunk run would renumber speakers in every chunk.
+
+### 13.4 Proposed capability map additions
+
+| Module id | Responsibility | Depends on |
+|---|---|---|
+| `speakers` | Mac endpoint for diarized transcripts + iPhone speaker rename | mac-asr-server, processing |
+| `notes` | Typed notes during/after recording, transcript and summary editing | phone-library |
+| `search` | Full-text search over titles, transcripts, summaries, notes | phone-library, processing |
+| `ask-ai` | Recording-type templates, follow-up email, multi-note Q&A via Claude hand-off | processing |
+| `quick-start` | App Intents: widget, Control Center control / Action button, Live Activity, Siri/Shortcuts | recorder |
+| `import` | Import audio from Files into the pipeline | phone-library, processing |
+| `ipad` | Adaptive iPad layout (split view: library + detail) | phone-library |
+
+Build order after the current Phase E: `notes` + `search` → `ask-ai` → `speakers` → `quick-start` → `import` → `ipad`.
+
+### 13.5 Open questions for v3
+1. **AI chat engine.** (a) Claude app hand-off: free, one manual step (recommended). (b) Local LLM on the Mac: automatic and free, but Thai quality untested. (c) Claude API: automatic, but pay per use.
+2. **iPad** in this release, or later?
+3. **Paid Apple Developer Program** (99 USD/yr)? Needed for iCloud sync to the Mac app. Device testing works without it, but free-team installs expire after 7 days.
+4. Approve the v3 module list and build order?
