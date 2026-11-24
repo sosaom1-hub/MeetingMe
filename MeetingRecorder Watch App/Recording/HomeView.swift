@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Environment(IntentRequests.self) private var requests
     @ScaledMetric(relativeTo: .title) private var recordButtonSize = 76.0
 
     @State private var preflight = PreflightStatus()
@@ -29,6 +30,12 @@ struct HomeView: View {
         }
         .navigationTitle("ประชุม")
         .onAppear { preflight = .current() }
+        // "เริ่มบันทึกประชุม" from Siri, Shortcuts or the Action button.
+        .onChange(of: requests.startRequestedAt, initial: true) {
+            if requests.consumeStartRequest() {
+                startRequested = true
+            }
+        }
         .consentStartFlow(isRequested: $startRequested)
     }
 }
