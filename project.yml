@@ -44,7 +44,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_PREFIX)
         TARGETED_DEVICE_FAMILY: "1"
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: บันทึกประชุม
+        INFOPLIST_KEY_CFBundleDisplayName: MeetingMe
         INFOPLIST_KEY_NSMicrophoneUsageDescription: แอปใช้ไมโครโฟนเพื่อบันทึกเสียงประชุมเมื่อคุณกดเริ่มบันทึกเท่านั้น เสียงจะถูกเก็บไว้ในเครื่องของคุณ
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
@@ -60,7 +60,7 @@ targets:
     info:
       path: MeetingRecorder Watch App/Info.plist
       properties:
-        CFBundleDisplayName: บันทึกประชุม
+        CFBundleDisplayName: MeetingMe
         WKApplication: true
         WKCompanionAppBundleIdentifier: $(BUNDLE_PREFIX)
         NSMicrophoneUsageDescription: แอปใช้ไมโครโฟนเพื่อบันทึกเสียงประชุมเมื่อคุณกดเริ่มบันทึกเท่านั้น
@@ -78,7 +78,7 @@ targets:
     info:
       path: MeetingRecorder Mac/Info.plist
       properties:
-        CFBundleDisplayName: บันทึกประชุม Server
+        CFBundleDisplayName: MeetingMe Server
         # Menu bar only: no Dock icon.
         LSUIElement: true
         # Repository root, so the app finds mac-server/ and scripts/. Override with defaults key "repositoryPath".

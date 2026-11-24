@@ -28,13 +28,13 @@ To regenerate `AppIcon.png` after editing the SVG: remove `rx="230"` and the edg
 | Token | Hex | Role |
 |---|---|---|
 | `charcoal.top` | `#202124` | Icon background, gradient start |
-| `charcoal` | `#101113` | Main dark background, gradient middle |
+| `charcoal` | `#101113` | Main dark background, gradient middle (`Theme.brandCharcoal`) |
 | `charcoal.bottom` | `#050607` | Icon background, gradient end |
-| `surface` | `#17191B` | Cards and bubbles on charcoal |
-| `ivory` | `#FFFDF8` | Primary mark and text on dark, gradient start |
-| `ivory.shade` | `#D9D4C8` | Ivory gradient end, secondary text on dark |
-| `gold` | `#E7D4A7` | Accent, gradient start |
-| `gold.deep` | `#B99A61` | Accent gradient end |
+| `surface` | `#23262A` | Cards and bubbles on charcoal (`Theme.brandSurface`) |
+| `ivory` | `#FFFDF8` | Primary mark and text on dark, gradient start (`Theme.brandIvory`) |
+| `ivory.shade` | `#D9D4C8` | Ivory gradient end, secondary text on dark (`Theme.brandIvoryShade`) |
+| `gold` | `#E7D4A7` | Accent, gradient start (`Theme.brandGold`) |
+| `gold.deep` | `#B99A61` | Accent gradient end (`Theme.brandGoldDeep`) |
 | `gold.dot` | `#E5D2A4` | The "live" dot |
 
 Gradients run from the top-left to the bottom-right: charcoal `#202124 → #101113 → #050607`, ivory `#FFFDF8 → #D9D4C8`, gold `#E7D4A7 → #B99A61`.
@@ -62,11 +62,16 @@ Brand gold is an accent, not a status color. Status always uses the system color
 
 ## In SwiftUI
 
-The app UI follows system colors (light and dark) and uses brand colors sparingly: the app icon, the About screen, and the gold accent on dark surfaces. When you need a brand color in code, add it to `Shared/Design/Theme.swift` with these exact values, for example:
+The app UI follows system colors (light and dark) and uses brand colors sparingly: the app icon, the About screen, and the gold accent on dark surfaces. All brand colors live in `Shared/Design/Theme.swift`; never write a brand hex value anywhere else:
 
 ```swift
-static let brandGold = Color(red: 0xE7 / 255, green: 0xD4 / 255, blue: 0xA7 / 255)
+Text("MeetingMe")
+    .foregroundStyle(Theme.brandIvory)
+    .padding()
+    .background(Theme.brandBackground)
 ```
+
+`Theme.brandBackground` is the charcoal gradient and `Theme.brandGoldGradient` is the gold one.
 
 ## Typography
 
