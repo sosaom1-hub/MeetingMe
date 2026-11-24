@@ -34,6 +34,9 @@ targets:
       properties:
         # Keeps recording when the iPhone screen locks.
         UIBackgroundModes: [audio]
+        # Plain HTTP only to local/IP hosts (simulator → 127.0.0.1, Tailscale 100.x). Internet hosts still need HTTPS.
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_PREFIX)

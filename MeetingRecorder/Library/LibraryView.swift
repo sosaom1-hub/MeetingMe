@@ -13,6 +13,7 @@ struct LibraryView: View {
     @State private var sort = LibrarySort.date
     @State private var startRequested = false
     @State private var isShowingRecorder = false
+    @State private var isShowingSettings = false
 
     var body: some View {
         NavigationStack {
@@ -20,6 +21,9 @@ struct LibraryView: View {
                 .navigationTitle("บันทึกประชุม")
                 .searchable(text: $searchText, prompt: "ค้นหาชื่อประชุม")
                 .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("ตั้งค่า", systemImage: "gearshape") { isShowingSettings = true }
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         Menu("เรียงลำดับ", systemImage: "arrow.up.arrow.down") {
                             Picker("เรียงตาม", selection: $sort) {
@@ -50,6 +54,9 @@ struct LibraryView: View {
         }
         .fullScreenCover(isPresented: $isShowingRecorder) {
             PhoneRecordingView()
+        }
+        .sheet(isPresented: $isShowingSettings) {
+            SettingsView()
         }
     }
 }

@@ -99,21 +99,21 @@ Tests run only when the user asks.
   - Size: M
   - Dependencies: none (needs Tailscale installed by the user)
 
-- [ ] **Task 11: `MacASRProvider` + per-chunk pipeline**
+- [x] **Task 11: `MacASRProvider` + per-chunk pipeline** (done 2026-11-24; live integration test passes from simulator)
   - Acceptance: one-time disclosure before the first upload; chunks sent one by one; per-chunk transcript stored; `waitingForServer` on failure; retry re-sends only missing chunks; server URL + health in Settings.
   - Verify: tests for the pipeline state machine with a fake provider (when asked); real run against the Mac.
   - Files: `MeetingRecorder/Processing/TranscriptionProvider.swift`, `…/MacASRProvider.swift`, `…/TranscriptionPipeline.swift`, `MeetingRecorder/Settings/ServerSettingsView.swift`, `MeetingRecorderTests/PipelineTests.swift`
   - Size: M
   - Dependencies: 8, 10
 
-- [ ] **Task 12: Transcript view**
+- [x] **Task 12: Transcript view** (done 2026-11-24; meeting-relative times, tap to play, ⭐ and untranscribed chunks shown inline)
   - Acceptance: segments with meeting-relative timestamps; tap a line to seek; markers shown if Task 4 adds them; good Thai line spacing.
   - Verify: simulator check with a real transcript.
   - Files: `MeetingRecorder/Detail/TranscriptView.swift`, `…/TranscriptLine.swift`
   - Size: S
   - Dependencies: 9, 11
 
-- [ ] **Task 13: Benchmark run 2 (real audio)**
+- [ ] **Task 13: Benchmark run 2 (real audio)** (synthetic app-format run done: 15.9× real time; real Watch audio still needed)
   - Acceptance: the user's 5-min Watch m4a transcribed at 560/1120 ms × th-TH/th-mix; speed and readability recorded; defaults chosen.
   - Verify: `mac-server/BENCHMARK.md` updated.
   - Files: `mac-server/BENCHMARK.md`

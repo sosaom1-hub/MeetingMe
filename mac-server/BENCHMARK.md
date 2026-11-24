@@ -18,6 +18,36 @@ Reference: สวัสดีครับ วันนี้เราประ�
 Thai words were all correct in every run. `display_text` has no spaces between sentences.
 At 8.3×, a 3 h meeting would take about 22 min. This is an extrapolation, not a measurement.
 
+## Run 2 — 2026-11-24, app-format m4a, chunk length
+
+Input: 504 s (8.4 min) of macOS `say -v Kanya` Thai TTS with 1–2 s pauses, encoded exactly as the app records
+(AAC, 16 kHz mono, 32 kbps, 2.0 MB). Sent through ffmpeg via `POST /v1/transcribe`, `split=auto`, `mode=standard`.
+**Still synthetic speech; not representative of a real meeting.**
+
+| lang | latency_ms | processing | speed | segments |
+|---|---|---|---|---|
+| th-mix | 1120 | 31.8 s | 15.9× real time | 64 (one per sentence, as expected) |
+| th-mix | 560 | 35.4 s | 14.2× real time | 64 |
+
+At 15.9×, a 5-min app chunk takes about 19 s and a 3 h meeting about 11 min.
+
+Accuracy on one round of 4 sentences (`th-mix`, 1120 ms):
+
+| Reference | Output |
+|---|---|
+| …เพิ่มงบโฆษณาออนไลน์ร้อยละสิบ | …เพิ่มงบโฆษณา online ร้อยละ 10 ✓ |
+| ให้ทีม IT ย้ายระบบไป Microsoft Teams | ให้**ทีมอีก**ย้ายระบบไป microsoft **ทีม** ✗ |
+| คุณวิภาจะประสานงาน… นัดประชุมครั้งถัดไป | คุณ**วิพา**จะประสานงาน… นัดประชุม**ครัง**ถัดไป ✗ |
+
+Errors are on short English acronyms, a name's spelling, and one tone mark. All 16 repetitions gave consistent output
+(6 distinct segment texts in 64).
+
+Defaults chosen for the app: `latency_ms=1120` (fastest and most accurate for batch files), language default `th-mix`
+(keeps English terms such as "online" and "microsoft" readable). The user can switch to `th-TH` in Settings.
+
+Integration test `transcribesThaiM4AOnLocalMacServer` passes from the iPhone simulator against this server.
+
 ## Next
 
-Run 2: real 5-min meeting recorded on Apple Watch Ultra 4 (m4a; needs `ffmpeg` on the Mac, or convert with `afconvert` first).
+Run 3: a real 5-min meeting recorded on Apple Watch Ultra 4 (wrist audio, real speakers, room noise). Needed before
+trusting accuracy numbers; waiting for a recording from the user.

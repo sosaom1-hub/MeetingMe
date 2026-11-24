@@ -38,13 +38,7 @@ struct MeetingDetailView: View {
                 }
             }
 
-            Section("ถอดเสียง") {
-                ContentUnavailableView(
-                    "ยังไม่ได้ถอดเสียง",
-                    systemImage: "text.quote",
-                    description: Text("การถอดเสียงผ่านเครื่อง Mac จะเพิ่มในขั้นถัดไป")
-                )
-            }
+            TranscriptSection(meeting: meeting, player: player)
         }
         .navigationTitle(meeting.title)
         .navigationBarTitleDisplayMode(.inline)
