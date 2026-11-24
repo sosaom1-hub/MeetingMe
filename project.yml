@@ -21,6 +21,8 @@ settings:
     SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
     SWIFT_STRICT_CONCURRENCY: complete
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    # Shared/Assets.xcassets (iPhone + Watch). Source art: docs/brand/meetingme-icon.svg
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
 targets:
   MeetingRecorder:

@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/brand/meetingme-icon.svg" alt="MeetingMe logo" width="128">
+
 # MeetingMe
 
 **Record meetings on Apple Watch or iPhone. Transcribe Thai and English on your own Mac. No cloud, no API keys.**

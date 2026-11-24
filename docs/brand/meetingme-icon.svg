@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#202124"/>
+      <stop offset="0.52" stop-color="#101113"/>
+      <stop offset="1" stop-color="#050607"/>
+    </linearGradient>
+    <linearGradient id="ivory" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#FFFDF8"/>
+      <stop offset="1" stop-color="#D9D4C8"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E7D4A7"/>
+      <stop offset="1" stop-color="#B99A61"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#000000" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+  <!-- iOS app icon canvas; keep the artwork clear of the outer edge. -->
+  <rect width="1024" height="1024" rx="230" fill="url(#bg)"/>
+  <rect x="4" y="4" width="1016" height="1016" rx="226" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="8"/>
+  <!-- Speech bubble: the open lower-right tail keeps the mark light and modern. -->
+  <path d="M328 283h368c48 0 87 39 87 87v176c0 48-39 87-87 87H503l-119 93c-17 13-41 1-41-20v-73c-57-7-102-56-102-115V370c0-48 39-87 87-87Z"
+        fill="#17191B" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="8" filter="url(#shadow)"/>
+  <!-- Meeting voice waveform shaped as an M. -->
+  <path d="M344 516v-83c0-20 26-28 37-11l72 108 80-146c11-20 42-12 42 11v121"
+        fill="none" stroke="url(#ivory)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Sound bars echo the waveform while remaining legible at small sizes. -->
+  <path d="M641 475v82M696 450v132" fill="none" stroke="url(#gold)" stroke-width="28" stroke-linecap="round"/>
+  <circle cx="756" cy="349" r="13" fill="#E5D2A4" opacity="0.92"/>
+</svg>
