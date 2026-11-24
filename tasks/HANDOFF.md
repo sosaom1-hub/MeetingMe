@@ -16,7 +16,7 @@ If a Claude session stops (usage limit, context full, crash), files on disk are 
 | Session | Task | Files owned | Next step |
 |---|---|---|---|
 | app-apple-watch-ai-da | v3 Watch Batch A (A1–A6), owns todo.md + SPEC.md | Watch Recording/*, Shared/Recording/*, Shared/Model/RecordingManifest.swift, Shared/Design/*, Watch Intents/ | A1 marker types (todo.md Batch A/B added in 182fae2; v3 Tasks 20–22 pushed in 2ad7ea7) |
-| app-apple-watch-ai-5e | v3 Watch Batch B (B1–B3) | Watch/Phone TransferService, Shared/Transfer/*, Watch Remote/ + Status/, iPhone calendar + notifications | B1 Watch as iPhone remote |
+| app-apple-watch-ai-5e | iPhone "Claude บน Mac" summary button (then Batch B on hold) | Processing/SummarySheet.swift, Processing/MacASRProvider.swift, mac-server/server.py | Add askClaude to MacASRProvider + button in SummarySheet |
 
 ## How to resume in a new session
 
