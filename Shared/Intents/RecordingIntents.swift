@@ -1,6 +1,6 @@
 import AppIntents
 
-/// Opens the app and starts recording through the normal on-screen flow (consent reminder, microphone permission).
+/// Opens the app (Watch or iPhone) and starts recording through the normal on-screen flow (consent reminder, microphone permission).
 struct StartRecordingIntent: AppIntent {
     static let title: LocalizedStringResource = "เริ่มบันทึกประชุม"
     static let description = IntentDescription("เปิดแอปแล้วเริ่มบันทึก ข้อความเตือนก่อนบันทึกยังแสดงตามการตั้งค่า")
@@ -8,10 +8,10 @@ struct StartRecordingIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        guard !WatchServices.recorder.isActive else {
+        guard !AppServices.recorder.isActive else {
             return .result(dialog: "กำลังบันทึกอยู่แล้ว")
         }
-        WatchServices.requests.startRequestedAt = .now
+        AppServices.requests.startRequestedAt = .now
         return .result(dialog: "กำลังเริ่มบันทึก")
     }
 }
@@ -23,7 +23,7 @@ struct StopRecordingIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let recorder = WatchServices.recorder
+        let recorder = AppServices.recorder
         guard recorder.isActive else {
             return .result(dialog: "ตอนนี้ไม่ได้บันทึกอยู่")
         }
@@ -43,7 +43,7 @@ struct AddMarkerIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let recorder = WatchServices.recorder
+        let recorder = AppServices.recorder
         guard recorder.phase == .recording else {
             return .result(dialog: "ตอนนี้ไม่ได้บันทึกอยู่")
         }
@@ -73,7 +73,8 @@ enum MarkerKindOption: String, AppEnum {
     }
 }
 
-/// Siri phrases and Shortcuts actions. Assign "เริ่มบันทึกประชุม" to the Ultra Action button via a Shortcut.
+/// Siri phrases and Shortcuts actions on Watch and iPhone. The iPhone 17 Pro Action button can run them directly;
+/// on the Ultra, assign a Shortcut that runs "เริ่มบันทึกประชุม".
 struct RecordingShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(

@@ -8,6 +8,7 @@ enum LibrarySort: String, CaseIterable, Identifiable {
 
 struct LibraryView: View {
     @Environment(ChunkedRecorder.self) private var recorder
+    @Environment(IntentRequests.self) private var requests
 
     @State private var searchText = ""
     @State private var sort = LibrarySort.date
@@ -51,6 +52,12 @@ struct LibraryView: View {
                     .tint(Theme.recording)
                     .padding(.bottom)
                 }
+        }
+        // "เริ่มบันทึกประชุม" from Siri, Shortcuts, or the iPhone Action button.
+        .onChange(of: requests.startRequestedAt, initial: true) {
+            if requests.consumeStartRequest() {
+                startRequested = true
+            }
         }
         .consentStartFlow(isRequested: $startRequested)
         .onChange(of: recorder.phase) { _, phase in

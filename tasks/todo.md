@@ -199,7 +199,7 @@ Tests run only when the user asks.
   - Verify: benchmark speed and RAM on a 30+ min file; merge logic tests.
   - Size: L (split server / app)
 
-- [ ] **Task 24: Quick start (App Intents)**
+- [x] **Task 24: Quick start (App Intents)** (done 2026-11-24 without extensions: Start/Stop/Add marker App Shortcuts on iPhone and Watch, iPhone 17 Pro Action button can run them. Control Center control and Live Activity need a widget extension = 3rd free App ID: waiting for the user's decision)
   - Acceptance: Control Center control and Action button start an iPhone recording; Live Activity while recording; Siri/Shortcuts "เริ่มบันทึกประชุม".
   - Verify: device check (needs signing). Check free-team App Group limits first.
   - Size: M
