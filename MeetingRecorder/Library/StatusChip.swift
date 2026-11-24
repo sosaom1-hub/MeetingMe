@@ -5,10 +5,26 @@ struct StatusChip: View {
     let state: ProcessingState
     let source: RecordingManifest.Source
 
+    private var sourceImage: String {
+        switch source {
+        case .watch: "applewatch"
+        case .phone: "iphone"
+        case .imported: "square.and.arrow.down"
+        }
+    }
+
+    private var sourceLabel: String {
+        switch source {
+        case .watch: "บันทึกจาก Apple Watch"
+        case .phone: "บันทึกจาก iPhone"
+        case .imported: "นำเข้าจากไฟล์"
+        }
+    }
+
     var body: some View {
         HStack {
-            Image(systemName: source == .watch ? "applewatch" : "iphone")
-                .accessibilityLabel(source == .watch ? "บันทึกจาก Apple Watch" : "บันทึกจาก iPhone")
+            Image(systemName: sourceImage)
+                .accessibilityLabel(sourceLabel)
             Label(state.label, systemImage: state.systemImage)
         }
         .font(.footnote)

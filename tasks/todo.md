@@ -204,7 +204,7 @@ Tests run only when the user asks.
   - Verify: device check (needs signing). Check free-team App Group limits first.
   - Size: M
 
-- [ ] **Task 25: Import audio files**
+- [x] **Task 25: Import audio files** (done 2026-11-24; split into 5-min AAC chunks, original untouched)
   - Acceptance: pick an audio file from Files; it becomes a meeting (split into 5-min chunks) and goes through the same pipeline.
   - Verify: import of an m4a/mp3 in simulator, then transcribe.
   - Size: M
@@ -231,7 +231,7 @@ Ownership and next steps: see [HANDOFF.md](HANDOFF.md). One task = one commit, p
 
 ### Batch B — Watch ↔ iPhone (session app-apple-watch-ai-5e; details in its HANDOFF row)
 
-- [ ] **B1: Watch as iPhone remote**
+- [x] **B1: Watch as iPhone remote** (done by 5e in 388516a)
 - [ ] **B2: Pipeline status on the Watch** (may include short decisions/action items, per the SPEC §1.10 amendment)
 - [ ] **B3: Calendar titles and notifications on iPhone**
 

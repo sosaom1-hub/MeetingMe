@@ -3,7 +3,8 @@ import Foundation
 /// Describes one recording's chunk files. Stored as `manifest.json` inside the recording's directory
 /// and sent alongside each chunk during Watch → iPhone transfer.
 nonisolated struct RecordingManifest: Codable, Hashable, Sendable, Identifiable {
-    enum Source: String, Codable, Sendable { case watch, phone }
+    /// Where the audio came from. `imported` is a file picked in the Files app (v3 Task 25).
+    enum Source: String, Codable, Sendable { case watch, phone, imported }
     enum Status: String, Codable, Sendable { case recording, finished, interrupted }
 
     struct Chunk: Codable, Hashable, Sendable {
