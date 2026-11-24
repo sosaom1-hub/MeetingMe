@@ -29,6 +29,15 @@ struct TranscriptionTests {
         }
     }
 
+    @Test func parsesClaudeAnswerAndRejectsEmptyOne() throws {
+        let json = ###"{"text":"## สรุป\nโอเค","processing_s":3.1}"###
+        let answer = try MacASRProvider.parseClaude(Data(json.utf8))
+        #expect(answer == "## สรุป\nโอเค")
+        #expect(throws: TranscriptionError.unreadableResponse) {
+            try MacASRProvider.parseClaude(Data(#"{"text":"  "}"#.utf8))
+        }
+    }
+
     @Test(arguments: ["", "ftp://mac/", "not a url", "https://"])
     func rejectsInvalidServerURLs(_ input: String) {
         #expect(MacASRProvider(string: input) == nil)

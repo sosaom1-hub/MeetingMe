@@ -159,7 +159,7 @@ struct SettingsView: View {
         Section("ความเป็นส่วนตัวและข้อมูล") {
             Label("เสียงและ transcript เก็บบน iPhone เครื่องนี้", systemImage: "iphone")
             Label("ส่งเสียงไปถอดที่เครื่อง Mac ของคุณเท่านั้น และส่งเมื่อคุณกด “ถอดเสียง”", systemImage: "desktopcomputer")
-            Label("ผลสรุปผ่านแอป Claude เฉพาะตอนที่คุณแชร์เอง", systemImage: "square.and.arrow.up")
+            Label("transcript ไปถึง Claude เฉพาะตอนที่คุณกดสรุปหรือแชร์เอง", systemImage: "square.and.arrow.up")
             Label("ไม่มีบัญชีผู้ใช้ ไม่มี cloud ไม่มี analytics", systemImage: "hand.raised")
             Button("ลบข้อมูลทั้งหมด…", systemImage: "trash", role: .destructive) {
                 isConfirmingDeleteAll = true

@@ -52,6 +52,26 @@ nonisolated struct MacASRProvider: TranscriptionProvider {
         return try Self.parse(try await send(request))
     }
 
+    /// `POST /v1/claude`: the Mac runs the Claude Code CLI with the user's own Claude login and returns its answer.
+    func askClaude(prompt: String) async throws -> String {
+        let boundary = "Boundary-\(UUID().uuidString)"
+        var request = URLRequest(url: baseURL.appending(path: "v1/claude"))
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.httpBody = Data("--\(boundary)\r\nContent-Disposition: form-data; name=\"prompt\"\r\n\r\n\(prompt)\r\n--\(boundary)--\r\n".utf8)
+        // The server gives Claude up to 600 s; a long Thai meeting summary takes about a minute.
+        request.timeoutInterval = 660
+        return try Self.parseClaude(try await send(request))
+    }
+
+    static func parseClaude(_ data: Data) throws -> String {
+        guard let text = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["text"] as? String,
+              !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw TranscriptionError.unreadableResponse
+        }
+        return text
+    }
+
     /// Server response → transcript. Files of 30 s or less come back without `segments`.
     static func parse(_ data: Data) throws -> ChunkTranscript {
         struct Response: Decodable {

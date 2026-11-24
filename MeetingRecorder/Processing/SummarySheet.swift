@@ -1,8 +1,9 @@
 import SwiftUI
 import UIKit
 
-/// Three steps on one screen: choose outputs → send the prompt to the Claude app → paste the answer back.
-/// Nothing is sent anywhere by this app; the user shares the prompt themselves.
+/// Three steps on one screen: choose outputs → send the prompt to Claude → review and save the answer.
+/// Sending is always the user's tap: either via the user's Mac (`/v1/claude`, their own Claude login), or by sharing
+/// the prompt to the Claude app and pasting the answer back.
 struct SummarySheet: View {
     @Bindable var meeting: Meeting
 
@@ -14,8 +15,17 @@ struct SummarySheet: View {
     @State private var language = SummaryLanguage.thai
     @State private var pasted = ""
     @State private var copiedPart: Int?
+    @AppStorage(AppSettings.serverURL) private var serverURL = ""
+    @State private var isAsking = false
+    @State private var askError: String?
 
-    private var parts: [String] {
+    /// One Mac request is one `claude -p` run with no chat history, so the whole transcript must fit in one prompt.
+    /// Stays under the server's 400,000-character limit.
+    static let macPromptLimit = 380_000
+
+    private var parts: [String] { prompt(maxPartCharacters: ClaudePromptBuilder.defaultMaxPartCharacters) }
+
+    private func prompt(maxPartCharacters: Int) -> [String] {
         ClaudePromptBuilder(
             title: meeting.title,
             date: meeting.startedAt,
@@ -23,7 +33,8 @@ struct SummarySheet: View {
             outputs: outputs,
             language: language,
             glossary: glossary,
-            recordingType: meeting.recordingType
+            recordingType: meeting.recordingType,
+            maxPartCharacters: maxPartCharacters
         ).parts()
     }
 
@@ -58,6 +69,31 @@ struct SummarySheet: View {
                 }
 
                 Section {
+                    Button(action: askMac) {
+                        if isAsking {
+                            Label("Claude กำลังสรุป…", systemImage: "hourglass")
+                        } else {
+                            Label("ให้ Claude บน Mac สรุปเลย", systemImage: "desktopcomputer")
+                        }
+                    }
+                    .disabled(serverURL.isEmpty || isAsking)
+                    if isAsking {
+                        ProgressView()
+                    }
+                    if let askError {
+                        Label(askError, systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(Theme.warning)
+                    }
+                } header: {
+                    Text("2 · ส่งให้ Claude")
+                } footer: {
+                    Text(serverURL.isEmpty
+                         ? "ตั้งที่อยู่เครื่อง Mac ในหน้าตั้งค่าก่อน หรือใช้การคัดลอกด้านล่าง"
+                         : "Mac ของคุณส่ง transcript ไปให้ Claude ด้วยบัญชี Claude ที่ login ไว้บน Mac ไม่ต้องคัดลอก ผลจะมาอยู่ในช่องข้อ 3 ให้ตรวจก่อนบันทึก")
+                }
+                .disabled(outputs.isEmpty)
+
+                Section {
                     if parts.count > 1 {
                         Label("transcript ยาว จึงแบ่งเป็น \(parts.count) ส่วน ส่งให้ Claude ทีละส่วนตามลำดับในแชตเดียวกัน", systemImage: "square.stack.3d.up")
                             .foregroundStyle(.secondary)
@@ -66,7 +102,7 @@ struct SummarySheet: View {
                         partRow(index)
                     }
                 } header: {
-                    Text("2 · ส่งให้แอป Claude")
+                    Text("หรือส่งเองผ่านแอป Claude")
                 } footer: {
                     Text("กดแชร์แล้วเลือกแอป Claude หรือคัดลอกไปวางในแชตใหม่ ข้อความรวม transcript ของประชุมนี้")
                 }
@@ -143,6 +179,29 @@ struct SummarySheet: View {
     private func load() {
         outputs = OutputKind.decode(defaultOutputsRaw)
         pasted = meeting.summaryText ?? ""
+    }
+
+    private func askMac() {
+        guard let provider = MacASRProvider(string: serverURL) else {
+            askError = TranscriptionError.invalidServerURL.localizedDescription
+            return
+        }
+        let prompts = prompt(maxPartCharacters: Self.macPromptLimit)
+        guard prompts.count == 1, let text = prompts.first else {
+            askError = "transcript ยาวเกินจะส่งในครั้งเดียว ใช้การคัดลอกทีละส่วนด้านล่างแทน"
+            return
+        }
+        askError = nil
+        isAsking = true
+        markSent()
+        Task {
+            do {
+                pasted = try await provider.askClaude(prompt: text)
+            } catch {
+                askError = error.localizedDescription
+            }
+            isAsking = false
+        }
     }
 
     private func markSent() {
