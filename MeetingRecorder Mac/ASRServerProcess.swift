@@ -58,7 +58,8 @@ final class ASRServerProcess {
 
         let process = Process()
         process.executableURL = python
-        process.arguments = ["-m", "uvicorn", "app:app", "--host", "127.0.0.1", "--port", String(Self.port)]
+        // server.py (ours, in git) wraps iApp's downloaded app.py and adds /v1/claude.
+        process.arguments = ["-m", "uvicorn", "server:app", "--app-dir", "../..", "--host", "127.0.0.1", "--port", String(Self.port)]
         process.currentDirectoryURL = serverDirectory.appending(path: "model/serve", directoryHint: .isDirectory)
         process.environment = ProcessInfo.processInfo.environment.merging([
             "CHINDA_PRELOAD": "1",

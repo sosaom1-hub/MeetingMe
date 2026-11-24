@@ -16,4 +16,4 @@ uvx --from huggingface_hub hf download iapp/OpenThai2.0-ASR-Streaming --local-di
 uvx --from huggingface_hub hf download iapp/OpenThai2.0-ASR-Streaming openthai2.0-asr-streaming_raw.nemo --local-dir model
 
 echo "Done. Start the menu-bar app \"MeetingRecorder Server\", or run:"
-echo "  cd model/serve && ../../.venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 18081"
+echo "  cd model/serve && ../../.venv/bin/python -m uvicorn server:app --app-dir ../.. --host 127.0.0.1 --port 18081"
