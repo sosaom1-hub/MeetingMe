@@ -125,28 +125,28 @@ Tests run only when the user asks.
 
 ## Phase E — Summary + export
 
-- [ ] **Task 14: Output selection + Claude hand-off**
+- [x] **Task 14: Output selection + Claude hand-off** (done 2026-11-24; one 3-step sheet, long transcripts split into numbered parts)
   - Acceptance: sheet to pick outputs and language; prompt builder (fixed headings, “ไม่ระบุ” rule, uncertainty section, numbered parts for long transcripts); “เปิดใน Claude” share + copy.
   - Verify: tests for the prompt builder (when asked); manual paste into the Claude app.
   - Files: `MeetingRecorder/Processing/OutputSelectionSheet.swift`, `…/ClaudePromptBuilder.swift`, `MeetingRecorderTests/PromptBuilderTests.swift`
   - Size: M
   - Dependencies: 12
 
-- [ ] **Task 15: Paste-back + result cards**
+- [x] **Task 15: Paste-back + result cards** (done 2026-11-24; PasteButton, Thai/English/bold headings parsed, raw text kept)
   - Acceptance: “วางผลสรุป” field; stored as-is with the label “สรุปโดย Claude (วางเอง)”; headings parsed into summary/decisions/action items cards; raw text is shown when parsing fails.
   - Verify: parser tests (when asked).
   - Files: `MeetingRecorder/Processing/SummaryPasteView.swift`, `…/SummaryParser.swift`, `MeetingRecorder/Detail/ResultCards.swift`, `MeetingRecorderTests/SummaryParserTests.swift`
   - Size: M
   - Dependencies: 14
 
-- [ ] **Task 16: TXT + DOCX export**
+- [x] **Task 16: TXT + DOCX export** (done 2026-11-24; `unzip -t` OK, XML well-formed, textutil reads it. Not yet opened in Word)
   - Acceptance: section picker; UTF-8 TXT; DOCX built with an in-house store-only ZIP; opens in Pages and Word with headings.
   - Verify: `unzip -t` on the output; open in Pages.
   - Files: `MeetingRecorder/Export/ExportSections.swift`, `…/TextExporter.swift`, `…/DocxExporter.swift`, `…/ZipWriter.swift`, `MeetingRecorderTests/DocxExporterTests.swift`
   - Size: M
   - Dependencies: 15
 
-- [ ] **Task 17: PDF export + share**
+- [x] **Task 17: PDF export + share** (done 2026-11-24; TextKit layout after Core Text detached Thai marks; page numbers checked)
   - Acceptance: A4; title/date header; page numbers; Core Text Thai wrapping with no clipped lines; `ShareLink` for all three formats.
   - Verify: 10-page Thai transcript PDF checked visually.
   - Files: `MeetingRecorder/Export/PDFExporter.swift`, `MeetingRecorder/Export/ExportSheet.swift`

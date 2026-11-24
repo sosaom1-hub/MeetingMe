@@ -14,6 +14,9 @@ final class Meeting {
     /// Known once the recording has ended; nil while the Watch is still recording.
     var expectedChunkCount: Int?
     var stateData: Data?
+    /// Answer pasted back from the Claude app, stored exactly as pasted.
+    var summaryText: String?
+    var summaryPastedAt: Date?
 
     @Relationship(deleteRule: .cascade, inverse: \AudioChunk.meeting)
     var chunks: [AudioChunk]? = []
@@ -40,5 +43,14 @@ final class Meeting {
 
     var directory: URL {
         ChunkPlanner(recordingID: id, root: RecordingPaths.root).directory
+    }
+
+    var transcriptLines: [TranscriptLine] {
+        TranscriptLine.build(chunks: sortedChunks.map { ($0.duration, $0.result) }, markers: markers)
+    }
+
+    var hasFullTranscript: Bool {
+        let chunks = sortedChunks
+        return !chunks.isEmpty && chunks.allSatisfy { $0.result != nil }
     }
 }

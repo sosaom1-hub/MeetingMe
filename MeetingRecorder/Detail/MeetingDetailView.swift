@@ -6,6 +6,8 @@ struct MeetingDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var player = ChunkPlayer()
     @State private var pendingDelete: Meeting?
+    @State private var isShowingSummary = false
+    @State private var isShowingExport = false
 
     var body: some View {
         List {
@@ -23,32 +25,27 @@ struct MeetingDetailView: View {
                     .padding(.vertical, 8)
             }
 
-            if !meeting.markers.isEmpty {
-                Section("จุดสำคัญ") {
-                    ForEach(meeting.markers, id: \.self) { marker in
-                        Button {
-                            player.seek(to: marker)
-                        } label: {
-                            Label(Duration.seconds(marker).formatted(.time(pattern: .hourMinuteSecond)), systemImage: "star.fill")
-                                .monospacedDigit()
-                        }
-                        .tint(.primary)
-                        .accessibilityHint("เล่นเสียงจากจุดนี้")
-                    }
-                }
-            }
+            MarkersSection(markers: meeting.markers, player: player)
+
+            SummarySection(meeting: meeting) { isShowingSummary = true }
 
             TranscriptSection(meeting: meeting, player: player)
         }
         .navigationTitle(meeting.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("ส่งออก", systemImage: "square.and.arrow.up") { isShowingExport = true }
+                    .disabled(meeting.transcriptLines.isEmpty && meeting.summaryText == nil)
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button("ลบ", systemImage: "trash", role: .destructive) {
                     pendingDelete = meeting
                 }
             }
         }
+        .sheet(isPresented: $isShowingSummary) { SummarySheet(meeting: meeting) }
+        .sheet(isPresented: $isShowingExport) { ExportSheet(meeting: meeting) }
         .meetingDeleteConfirmation(for: $pendingDelete) { dismiss() }
         .task(id: meeting.chunks?.count) {
             await player.load(meeting.sortedChunks.map { meeting.directory.appending(path: $0.fileName) })

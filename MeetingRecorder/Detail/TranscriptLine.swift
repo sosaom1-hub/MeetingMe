@@ -1,7 +1,7 @@
 import Foundation
 
 /// One row of the meeting transcript, with a time relative to the start of the whole meeting.
-struct TranscriptLine: Identifiable, Hashable {
+nonisolated struct TranscriptLine: Identifiable, Hashable, Sendable {
     enum Kind: Hashable {
         case speech(String)
         case marker
@@ -12,6 +12,22 @@ struct TranscriptLine: Identifiable, Hashable {
     let id: Int
     let start: TimeInterval
     let kind: Kind
+
+    var timestamp: String {
+        Duration.seconds(start).formatted(.time(pattern: .hourMinuteSecond))
+    }
+
+    /// `[0:05:12] text` per line, used for the Claude prompt and for exports.
+    static func plainText(_ lines: [TranscriptLine]) -> String {
+        lines.map { line in
+            switch line.kind {
+            case .speech(let text): "[\(line.timestamp)] \(text)"
+            case .marker: "[\(line.timestamp)] ⭐ จุดสำคัญ"
+            case .pending(let chunk): "[\(line.timestamp)] (ส่วนที่ \(chunk) ยังไม่ได้ถอดเสียง)"
+            }
+        }
+        .joined(separator: "\n")
+    }
 
     /// Joins per-chunk segments into one timeline by adding each chunk's start offset, and interleaves ⭐ markers.
     static func build(chunks: [(duration: TimeInterval, transcript: ChunkTranscript?)], markers: [TimeInterval]) -> [TranscriptLine] {
