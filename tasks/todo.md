@@ -6,8 +6,8 @@ Build commands (from SPEC §5):
 ```sh
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 xcodegen generate
-xcodebuild -scheme MeetingRecorder -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
-xcodebuild -scheme "MeetingRecorder Watch App" -destination 'platform=watchOS Simulator,name=Apple Watch Ultra 4 (49mm)' build
+xcodebuild -project MeetingRecorder.xcodeproj -scheme MeetingRecorder -destination 'generic/platform=iOS Simulator' -derivedDataPath build/dd CODE_SIGNING_ALLOWED=NO build
+xcodebuild -project MeetingRecorder.xcodeproj -scheme "MeetingRecorder Watch App" -destination 'generic/platform=watchOS Simulator' -derivedDataPath build/dd CODE_SIGNING_ALLOWED=NO build
 ```
 Tests run only when the user asks.
 
@@ -15,7 +15,7 @@ Tests run only when the user asks.
 
 ## Phase A — Foundation + risk
 
-- [ ] **Task 1: XcodeGen project skeleton**
+- [x] **Task 1: XcodeGen project skeleton** (done 2026-11-24; tests not run)
   - Acceptance: `project.yml` defines the iOS app, embedded Watch app, and Swift Testing target; `Shared/` compiles into both apps; iOS 27 / watchOS 27; microphone usage strings in Thai; `UIBackgroundModes: audio` on Watch. Both apps launch to a placeholder screen.
   - Verify: `xcodegen generate` + both `xcodebuild … build` succeed.
   - Files: `project.yml`, `MeetingRecorder/MeetingRecorderApp.swift`, `MeetingRecorder Watch App/MeetingRecorderWatchApp.swift`, `Shared/.gitkeep`, `MeetingRecorderTests/SmokeTests.swift`
