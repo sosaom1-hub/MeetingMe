@@ -2,16 +2,12 @@ import SwiftUI
 
 @main
 struct MeetingRecorderWatchApp: App {
+    @State private var recorder = ChunkedRecorder(source: .watch)
+
     var body: some Scene {
         WindowGroup {
-            VStack(spacing: 8) {
-                Image(systemName: "record.circle")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.red)
-                    .accessibilityHidden(true)
-                Text("บันทึกประชุม")
-                    .font(.headline)
-            }
+            WatchRootView()
+                .environment(recorder)
         }
     }
 }

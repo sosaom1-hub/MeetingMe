@@ -40,14 +40,14 @@ Tests run only when the user asks.
 
 ## Phase B — Recording
 
-- [ ] **Task 4: Shared `ChunkedRecorder` + Watch recording UI**
+- [x] **Task 4: Shared `ChunkedRecorder` + Watch recording UI** (done 2026-11-24 in simulator: Liquid Glass buttons, ⭐ marker, double-tap stop, Always-On view; real-device check pending Task 2)
   - Acceptance: Home / Recording / After-stop screens as in plan.md; permission request; consent sheet; wrist-mic notice; pre-flight battery/storage line; level meter; haptics; Always-On reduced view.
   - Verify: build; simulator UI check; device check that the timer and chunks are correct.
   - Files: `Shared/Recording/ChunkedRecorder.swift`, `MeetingRecorder Watch App/Recording/HomeView.swift`, `…/RecordingView.swift`, `…/ConsentSheet.swift`, `…/PreflightStatus.swift`
   - Size: M
   - Dependencies: 2, 3
 
-- [ ] **Task 5: Interruptions + crash recovery**
+- [ ] **Task 5: Interruptions + crash recovery** (code landed with Task 4: OS 27 `didBecomeInactiveNotification`, recovery on launch, resume as new part. Device test still open)
   - Acceptance: call/Siri/route change ends the part and saves audio; low storage stops cleanly; on relaunch an unfinished recording appears as `interrupted` with “บันทึกต่อ / จบ”.
   - Verify: device test with an incoming call; kill the app mid-recording, relaunch, saved chunks intact.
   - Files: `Shared/Recording/ChunkedRecorder.swift`, `MeetingRecorder Watch App/Recording/InterruptedView.swift`, `…/WatchRecordingModel.swift`
@@ -92,11 +92,11 @@ Tests run only when the user asks.
 
 ## Phase D — Transcription (Mac)
 
-- [ ] **Task 10: Mac server hardening**
-  - Acceptance: `mac-server/setup.sh` reproduces the venv + model download; a launchd agent starts the server at login on 127.0.0.1:18081 and restarts it on crash; README section for `tailscale serve --bg 18081`.
-  - Verify: reboot/login → `curl /v1/health` OK; from iPhone over Tailscale → health OK.
-  - Files: `mac-server/setup.sh`, `mac-server/com.user.openthai-asr.plist`, `mac-server/README.md`
-  - Size: S
+- [ ] **Task 10: Native macOS menu-bar app "MeetingRecorder Server"** (decided 2026-11-24: native Mac app replaces the launchd plist)
+  - Acceptance: SwiftUI `MenuBarExtra` app (macOS target in `project.yml`) starts the Python ASR server as a child process on 127.0.0.1:18081, restarts it on crash, shows status (loading / ready / error) and the last jobs; "Open at login" via `SMAppService`; `mac-server/setup.sh` reproduces the venv + model download; README for `tailscale serve --bg 18081`.
+  - Verify: build the macOS target; launch → health ready; quit → server process gone; from iPhone over Tailscale → health OK.
+  - Files: `project.yml`, `MeetingRecorder Mac/MeetingRecorderServerApp.swift`, `MeetingRecorder Mac/ASRServerProcess.swift`, `MeetingRecorder Mac/ServerMenuView.swift`, `mac-server/setup.sh`
+  - Size: M
   - Dependencies: none (needs Tailscale installed by the user)
 
 - [ ] **Task 11: `MacASRProvider` + per-chunk pipeline**
