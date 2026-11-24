@@ -4,9 +4,13 @@ import SwiftUI
 struct PreflightLine: View {
     let status: PreflightStatus
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
         VStack {
-            HStack {
+            // Large text: battery and storage stack instead of running off the screen.
+            let row = dynamicTypeSize.isAccessibilitySize ? AnyLayout(VStackLayout()) : AnyLayout(HStackLayout())
+            row {
                 if let level = status.batteryLevel {
                     Label(level.formatted(.percent.precision(.fractionLength(0))), systemImage: "battery.75percent")
                         .foregroundStyle(status.isBatteryLow ? AnyShapeStyle(Theme.warning) : AnyShapeStyle(.secondary))

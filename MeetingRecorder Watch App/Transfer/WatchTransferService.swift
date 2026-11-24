@@ -121,10 +121,23 @@ extension WatchTransferService: WCSessionDelegate {
         activationDidCompleteWith activationState: WCSessionActivationState,
         error: (any Error)?
     ) {
+        let consent = session.receivedApplicationContext[TransferMessage.consentText] as? String
         Task { @MainActor in
+            Self.applyConsentText(consent)
             self.resendPending()
             self.refresh()
         }
+    }
+
+    nonisolated func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        let consent = applicationContext[TransferMessage.consentText] as? String
+        Task { @MainActor in Self.applyConsentText(consent) }
+    }
+
+    /// `@AppStorage` reads the same UserDefaults key, so the consent sheet updates on its own.
+    private static func applyConsentText(_ text: String?) {
+        guard let text, !text.isEmpty else { return }
+        UserDefaults.standard.set(text, forKey: ConsentDefaults.storageKey)
     }
 
     nonisolated func sessionReachabilityDidChange(_ session: WCSession) {

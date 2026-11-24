@@ -21,8 +21,13 @@ struct MeetingDetailView: View {
             }
 
             Section("เสียง") {
-                PlayerControls(player: player)
-                    .padding(.vertical, 8)
+                if let deletedAt = meeting.audioDeletedAt {
+                    Label("ลบไฟล์เสียงแล้วตามการตั้งค่า เมื่อ \(deletedAt.formatted(date: .abbreviated, time: .shortened)) · transcript ยังอยู่", systemImage: "speaker.slash")
+                        .foregroundStyle(.secondary)
+                } else {
+                    PlayerControls(player: player)
+                        .padding(.vertical, 8)
+                }
             }
 
             MarkersSection(markers: meeting.markers, player: player)

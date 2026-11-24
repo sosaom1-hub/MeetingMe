@@ -51,6 +51,30 @@ struct MeetingStore {
         context.delete(meeting)
         try? context.save()
     }
+
+    /// Deletes every meeting and its files. Callers must have confirmed with the user first.
+    func deleteAll() {
+        let meetings = (try? context.fetch(FetchDescriptor<Meeting>())) ?? []
+        for meeting in meetings {
+            try? FileManager.default.removeItem(at: meeting.directory)
+            context.delete(meeting)
+        }
+        try? FileManager.default.removeItem(at: URL.temporaryDirectory.appending(path: "Exports"))
+        try? context.save()
+    }
+
+    /// Retention setting "delete audio after transcript": removes the audio only once every chunk has a transcript.
+    /// Returns false (and deletes nothing) if any chunk is still untranscribed.
+    @discardableResult
+    func deleteAudioIfFullyTranscribed(_ meeting: Meeting) -> Bool {
+        guard meeting.hasFullTranscript, meeting.audioDeletedAt == nil else { return false }
+        for chunk in meeting.sortedChunks {
+            try? FileManager.default.removeItem(at: meeting.directory.appending(path: chunk.fileName))
+        }
+        meeting.audioDeletedAt = .now
+        try? context.save()
+        return true
+    }
 }
 
 private extension ProcessingState {

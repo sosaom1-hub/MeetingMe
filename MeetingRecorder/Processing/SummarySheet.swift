@@ -7,6 +7,7 @@ struct SummarySheet: View {
     @Bindable var meeting: Meeting
 
     @AppStorage(AppSettings.defaultOutputs) private var defaultOutputsRaw = AppSettings.defaultOutputsValue
+    @AppStorage(AppSettings.glossary) private var glossary = ""
     @Environment(\.dismiss) private var dismiss
 
     @State private var outputs: Set<OutputKind> = []
@@ -20,7 +21,8 @@ struct SummarySheet: View {
             date: meeting.startedAt,
             transcript: TranscriptLine.plainText(meeting.transcriptLines),
             outputs: outputs,
-            language: language
+            language: language,
+            glossary: glossary
         ).parts()
     }
 

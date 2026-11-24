@@ -17,6 +17,8 @@ final class Meeting {
     /// Answer pasted back from the Claude app, stored exactly as pasted.
     var summaryText: String?
     var summaryPastedAt: Date?
+    /// Set when audio files were removed by the retention setting; the transcript stays.
+    var audioDeletedAt: Date?
 
     @Relationship(deleteRule: .cascade, inverse: \AudioChunk.meeting)
     var chunks: [AudioChunk]? = []

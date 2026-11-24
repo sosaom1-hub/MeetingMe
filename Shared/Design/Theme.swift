@@ -4,8 +4,16 @@ import SwiftUI
 enum Theme {
     /// The only strong color in the app: it always means "recording".
     static let recording = Color.red
+    #if os(watchOS)
+    // Watch is always dark: system colors are 10:1 on black.
     static let warning = Color.orange
     static let success = Color.green
+    #else
+    /// Used as text, so light mode needs a darker shade: system orange/green are only 2.2:1 on white.
+    /// Asset colors: #B45309 / #15803D in light (5.0:1), system orange/green in dark (10:1).
+    static let warning = Color("Warning")
+    static let success = Color("Success")
+    #endif
     static let meterBarCount = 16
     static let savedSummarySeconds = 4
 

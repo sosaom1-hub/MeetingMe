@@ -63,6 +63,34 @@ struct MeetingStoreTests {
         #expect(meeting.duration == 600)
     }
 
+    @Test func retentionKeepsAudioUntilEveryChunkHasTranscript() throws {
+        defer { try? FileManager.default.removeItem(at: planner.directory) }
+        try arrive(0)
+        try arrive(1)
+        store.upsert(manifest(.finished, chunks: 2))
+        let meeting = try meeting()
+        meeting.sortedChunks[0].result = ChunkTranscript(text: "ก", segments: [])
+
+        #expect(!store.deleteAudioIfFullyTranscribed(meeting))
+        #expect(FileManager.default.fileExists(atPath: planner.url(for: 0).path(percentEncoded: false)))
+
+        meeting.sortedChunks[1].result = ChunkTranscript(text: "ข", segments: [])
+        #expect(store.deleteAudioIfFullyTranscribed(meeting))
+        #expect(!FileManager.default.fileExists(atPath: planner.url(for: 0).path(percentEncoded: false)))
+        #expect(meeting.audioDeletedAt != nil)
+        #expect(meeting.sortedChunks.map(\.transcript) == ["ก", "ข"])
+    }
+
+    @Test func deleteAllRemovesEveryMeeting() throws {
+        try arrive(0)
+        store.upsert(manifest(.finished, chunks: 1))
+
+        store.deleteAll()
+
+        #expect(try store.context.fetch(FetchDescriptor<Meeting>()).isEmpty)
+        #expect(!FileManager.default.fileExists(atPath: planner.directory.path(percentEncoded: false)))
+    }
+
     @Test func deleteRemovesAudioFiles() throws {
         try arrive(0)
         store.upsert(manifest(.finished, chunks: 1))

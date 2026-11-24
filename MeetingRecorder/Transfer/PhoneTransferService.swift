@@ -16,8 +16,18 @@ final class PhoneTransferService: NSObject {
         WCSession.default.activate()
     }
 
+    /// Sends the consent reminder text to the Watch. Application context keeps only the latest value,
+    /// and the system delivers it when the Watch app next runs.
+    func sendConsentText() {
+        let session = WCSession.default
+        guard WCSession.isSupported(), session.activationState == .activated, session.isPaired, session.isWatchAppInstalled else { return }
+        let text = UserDefaults.standard.string(forKey: ConsentDefaults.storageKey) ?? ConsentDefaults.text
+        try? session.updateApplicationContext([TransferMessage.consentText: text])
+    }
+
     private func updateWatchState(installed: Bool) {
         isWatchAppInstalled = installed
+        sendConsentText()
     }
 }
 

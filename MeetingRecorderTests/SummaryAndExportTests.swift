@@ -29,6 +29,16 @@ struct PromptBuilderTests {
         #expect(prompt.contains("“Not specified”"))
     }
 
+    @Test func glossaryTermsReachPromptOnlyWhenSet() throws {
+        var withTerms = builder("x")
+        withTerms.glossary = "วิภา\n Microsoft Teams ,\n\nIT"
+        let prompt = try #require(withTerms.parts().first)
+        #expect(prompt.contains("ชื่อคนและคำเฉพาะที่สะกดถูกต้อง: วิภา, Microsoft Teams, IT —"))
+
+        let plain = try #require(builder("x").parts().first)
+        #expect(!plain.contains("ชื่อคนและคำเฉพาะที่สะกดถูกต้อง"))
+    }
+
     @Test func longTranscriptSplitsWithoutLosingOrCuttingLines() {
         let lines = (0..<600).map { "[0:\(String(format: "%02d", $0 / 60)):\(String(format: "%02d", $0 % 60))] ประโยคที่ \($0) ของการประชุมยาว" }
         let transcript = lines.joined(separator: "\n")

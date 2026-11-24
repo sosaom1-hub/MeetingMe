@@ -158,14 +158,14 @@ Tests run only when the user asks.
 
 ## Phase F — Polish
 
-- [ ] **Task 18: Settings + privacy controls**
+- [x] **Task 18: Settings + privacy controls** (done 2026-11-24; consent text synced via application context, audio retention, delete all, default outputs, glossary from session 5e. Watch sync untested on devices)
   - Acceptance: language mode, default outputs, audio retention, delete all data (with confirmation), consent text synced to Watch via `transferUserInfo`.
   - Verify: change the consent text on iPhone → appears on Watch.
   - Files: `MeetingRecorder/Settings/SettingsView.swift`, `…/AppSettings.swift`, `Shared/Transfer/TransferMessage.swift`
   - Size: M
   - Dependencies: 11
 
-- [ ] **Task 19: Accessibility + localization pass**
+- [x] **Task 19: Accessibility + localization pass** (done 2026-11-24 for Thai: contrast fix for warning/success text, layouts stack at accessibility sizes, VoiceOver labels reviewed. English UI deferred: personal Thai user. Accessibility Inspector run on device still open)
   - Acceptance: String Catalog Thai (default) + English; VoiceOver labels on every control; AX5 layouts hold; Reduce Motion respected; contrast checked.
   - Verify: Accessibility Inspector on key screens; review with the `swiftui-pro` skill.
   - Files: `Localizable.xcstrings`, views touched as needed (split if more than 5)

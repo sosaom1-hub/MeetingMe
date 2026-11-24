@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 /// Transcript status, the start/retry control, and the transcript itself (tap a time to play from there).
@@ -9,6 +10,8 @@ struct TranscriptSection: View {
     @AppStorage(AppSettings.serverURL) private var serverURL = ""
     @AppStorage(AppSettings.transcriptLanguage) private var languageRaw = AppSettings.defaultLanguage
     @AppStorage(AppSettings.hasAcceptedUploadDisclosure) private var hasAcceptedDisclosure = false
+    @AppStorage(AppSettings.audioRetention) private var retentionRaw = AudioRetention.keep.rawValue
+    @Environment(\.modelContext) private var context
     @State private var isShowingDisclosure = false
 
     private var chunks: [AudioChunk] { meeting.sortedChunks }
@@ -140,6 +143,12 @@ struct TranscriptSection: View {
             return
         }
         let language = TranscriptLanguage(rawValue: languageRaw) ?? .thaiMixed
-        Task { await pipeline.run(meeting, provider: provider, language: language) }
+        let deleteAudio = retentionRaw == AudioRetention.deleteAfterTranscript.rawValue
+        Task {
+            await pipeline.run(meeting, provider: provider, language: language)
+            if deleteAudio {
+                MeetingStore(context: context).deleteAudioIfFullyTranscribed(meeting)
+            }
+        }
     }
 }

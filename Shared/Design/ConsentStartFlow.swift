@@ -6,7 +6,7 @@ struct ConsentStartFlow: ViewModifier {
     @Binding var isRequested: Bool
 
     @Environment(ChunkedRecorder.self) private var recorder
-    @AppStorage("consentText") private var consentText = ConsentDefaults.text
+    @AppStorage(ConsentDefaults.storageKey) private var consentText = ConsentDefaults.text
     @AppStorage("consentSnoozedUntil") private var consentSnoozedUntil = 0.0
     @AppStorage("hasSeenMicNotice") private var hasSeenMicNotice = false
 

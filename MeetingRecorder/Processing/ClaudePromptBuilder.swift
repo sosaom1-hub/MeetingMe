@@ -12,6 +12,8 @@ struct ClaudePromptBuilder {
     var transcript: String
     var outputs: Set<OutputKind>
     var language: SummaryLanguage
+    /// User-supplied correct spellings, separated by new lines or commas.
+    var glossary = ""
     var maxPartCharacters = defaultMaxPartCharacters
 
     func parts() -> [String] {
@@ -63,6 +65,13 @@ struct ClaudePromptBuilder {
             "บรรทัดที่มี ⭐ คือจุดที่ผู้บันทึกกดไว้ว่าสำคัญระหว่างประชุม",
             "อ้างเวลา [ชม:นาที:วินาที] จาก transcript เมื่อช่วยให้ตรวจสอบได้",
         ]
+        let terms = glossary
+            .split(whereSeparator: { $0 == "\n" || $0 == "," })
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        if !terms.isEmpty {
+            rules.append("ชื่อคนและคำเฉพาะที่สะกดถูกต้อง: \(terms.joined(separator: ", ")) — ถ้าคำใน transcript ออกเสียงใกล้กับคำในรายการนี้ (เช่น “วิพา” กับ “วิภา” หรือ “ทีมอีก” กับ “ทีม IT”) ให้ใช้ตัวสะกดในรายการนี้ ห้ามใส่คำจากรายการนี้ถ้าไม่มีคำที่ออกเสียงใกล้เคียงใน transcript")
+        }
         if outputs.contains(.actionItems) {
             rules.append("งานที่ต้องทำ: เขียนแต่ละข้อเป็น “- งาน — ผู้รับผิดชอบ: … — กำหนดส่ง: …” ถ้า transcript ไม่ได้บอกผู้รับผิดชอบหรือกำหนดส่ง ให้เขียน “\(notSpecified)” ห้ามเดา")
         }

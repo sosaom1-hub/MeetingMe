@@ -15,5 +15,7 @@ nonisolated enum RecordingPaths {
 }
 
 nonisolated enum ConsentDefaults {
+    /// `@AppStorage` key on both devices. Edited on iPhone, copied to the Watch via application context.
+    static let storageKey = "consentText"
     static let text = "โปรดแจ้งผู้เข้าประชุมทุกคนว่ากำลังบันทึกเสียง"
 }
