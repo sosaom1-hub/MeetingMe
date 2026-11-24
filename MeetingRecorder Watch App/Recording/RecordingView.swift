@@ -71,11 +71,7 @@ struct RecordingView: View {
                         markerIndex = (markerIndex + (direction == .increment ? 1 : count - 1)) % count
                     }
 
-                    Button("หยุด", systemImage: "stop.fill", action: recorder.stop)
-                        .buttonStyle(.glassProminent)
-                        .tint(Theme.recording)
-                        .frame(maxWidth: .infinity)
-                        .handGestureShortcut(.primaryAction)
+                    StopButton(action: recorder.stop)
                 }
             }
         }
