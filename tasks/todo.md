@@ -28,7 +28,7 @@ Tests run only when the user asks.
   - Size: S
   - Dependencies: 1
 
-- [x] **Task 3: Core model + chunk logic (Shared)** (done 2026-11-24; tests compile, not run yet. Markers deferred until open question 1 is answered)
+- [x] **Task 3: Core model + chunk logic (Shared)** (done 2026-11-24; ⭐ markers added; 6/6 tests pass on iPhone 17 Pro simulator)
   - Acceptance: `RecordingManifest` (id, start, chunks[], markers[], state) is Codable; `ChunkPlanner` names and rotates chunk files; `RecoveryScanner` turns an unfinished directory into an `interrupted` manifest; `ProcessingState` enum matches SPEC §4.
   - Verify: Swift Testing tests for rotation, recovery, manifest round-trip (run when asked); both apps build.
   - Files: `Shared/Model/RecordingManifest.swift`, `Shared/Model/ProcessingState.swift`, `Shared/Recording/ChunkPlanner.swift`, `Shared/Recording/RecoveryScanner.swift`, `MeetingRecorderTests/ChunkLogicTests.swift`

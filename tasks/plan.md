@@ -116,6 +116,6 @@ Phases D and E (Mac-side work, exporters) could run in parallel with B and C. Th
 
 ## Open questions
 
-1. Include the **⭐ marker** during recording? (Small: a timestamp list in the manifest plus one button.)
-2. **Smart Stack widget/complication**: in MVP or later?
+1. ~~⭐ marker~~ **Decided 2026-11-24: yes, in MVP.** `RecordingManifest.markers` is added; the button lands in Task 4 and markers show in the transcript in Task 12.
+2. ~~Smart Stack widget~~ **Decided 2026-11-24: later, not in MVP.**
 3. **Bundle ID prefix** and **Apple Developer Team ID** for signing on real devices (e.g. `com.<you>.meetingrecorder`). A free personal team works for device testing, but its apps expire after 7 days.

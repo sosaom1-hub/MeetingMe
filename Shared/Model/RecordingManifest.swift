@@ -19,13 +19,23 @@ nonisolated struct RecordingManifest: Codable, Hashable, Sendable, Identifiable 
     let startedAt: Date
     var status: Status
     var chunks: [Chunk]
+    /// ⭐ "จุดสำคัญ" markers, in seconds from the start of the recording.
+    var markers: [TimeInterval]
 
-    init(id: UUID = UUID(), source: Source, startedAt: Date = .now, status: Status = .recording, chunks: [Chunk] = []) {
+    init(
+        id: UUID = UUID(),
+        source: Source,
+        startedAt: Date = .now,
+        status: Status = .recording,
+        chunks: [Chunk] = [],
+        markers: [TimeInterval] = []
+    ) {
         self.id = id
         self.source = source
         self.startedAt = startedAt
         self.status = status
         self.chunks = chunks
+        self.markers = markers
     }
 
     var totalDuration: TimeInterval {

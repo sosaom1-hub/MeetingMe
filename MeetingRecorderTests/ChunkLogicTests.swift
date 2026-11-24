@@ -23,7 +23,8 @@ struct ChunkLogicTests {
         let manifest = RecordingManifest(
             source: .watch,
             startedAt: Date(timeIntervalSince1970: 1_800_000_000),
-            chunks: [.init(index: 0, fileName: ChunkPlanner.fileName(for: 0), duration: 300)]
+            chunks: [.init(index: 0, fileName: ChunkPlanner.fileName(for: 0), duration: 300)],
+            markers: [42.5, 180]
         )
 
         try manifest.write(to: planner.directory)
