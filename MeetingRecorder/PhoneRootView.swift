@@ -16,6 +16,7 @@ struct PhoneRootView: View {
     private func connect() {
         let store = MeetingStore(context: context)
         recorder.onFinish = { store.upsert($0) }
+        recorder.onManifestEdited = { store.upsert($0) }
         transfer.onManifest = { store.upsert($0) }
 
         // iPhone recordings cut off by a crash or force-quit become "interrupted" meetings.

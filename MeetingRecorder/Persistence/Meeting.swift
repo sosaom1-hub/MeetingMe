@@ -34,7 +34,12 @@ final class Meeting {
         self.id = id
         self.startedAt = startedAt
         self.sourceRaw = source.rawValue
-        self.title = "ประชุม " + startedAt.formatted(.dateTime.day().month().hour().minute())
+        self.title = Self.defaultTitle(for: startedAt)
+    }
+
+    /// Automatic title; a title chosen on the Watch replaces it only while it is still this value.
+    static func defaultTitle(for date: Date) -> String {
+        "ประชุม " + date.formatted(.dateTime.day().month().hour().minute())
     }
 
     var source: RecordingManifest.Source {

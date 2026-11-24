@@ -45,6 +45,14 @@ final class ChunkedRecorder {
     var onChunkClosed: ((RecordingManifest, Int) -> Void)?
     /// Called once a recording ends (finished or interrupted) and its manifest is saved.
     var onFinish: ((RecordingManifest) -> Void)?
+    /// Called when title or type is set after the recording ended, so the change reaches the iPhone library.
+    var onManifestEdited: ((RecordingManifest) -> Void)?
+
+    /// Copy of the most recently closed chunk, for "play the last 10 seconds" after stopping.
+    /// The chunk itself may be deleted from the Watch as soon as the iPhone acknowledges it.
+    nonisolated static var lastChunkPreviewURL: URL {
+        URL.cachesDirectory.appending(path: "last-chunk-preview.m4a")
+    }
 
     private let root: URL
     private let source: RecordingManifest.Source
@@ -145,9 +153,25 @@ final class ChunkedRecorder {
     func adoptRecovered(_ recovered: RecordingManifest) {
         guard phase == .idle else { return }
         manifest = recovered
+        planner = ChunkPlanner(recordingID: recovered.id, root: root)
         elapsed = recovered.totalDuration
         stopReason = "แอปปิดไประหว่างบันทึก"
         phase = .stopped(.interrupted)
+    }
+
+    /// Title and recording type chosen after stopping. Saved to the manifest and passed to `onManifestEdited`.
+    func updateDetails(title: String?, type: RecordingType?) {
+        guard case .stopped = phase, var manifest else { return }
+        if let title {
+            let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            manifest.title = trimmed.isEmpty ? nil : trimmed
+        }
+        if let type {
+            manifest.recordingType = type.rawValue
+        }
+        self.manifest = manifest
+        saveManifest()
+        onManifestEdited?(manifest)
     }
 
     func reset() {
@@ -214,6 +238,9 @@ final class ChunkedRecorder {
         guard duration > 0 else { return }
         manifest?.chunks.append(.init(index: currentIndex, fileName: ChunkPlanner.fileName(for: currentIndex), duration: duration))
         saveManifest()
+        // Before the transfer callback: the original may be deleted once the iPhone has it.
+        try? FileManager.default.removeItem(at: Self.lastChunkPreviewURL)
+        try? FileManager.default.copyItem(at: url, to: Self.lastChunkPreviewURL)
         if let manifest {
             onChunkClosed?(manifest, currentIndex)
         }

@@ -12,7 +12,6 @@ struct StoppedView: View {
         Duration.seconds(recorder.manifest?.totalDuration ?? 0).formatted(.time(pattern: .hourMinuteSecond))
     }
     private var chunkCount: Int { recorder.manifest?.chunks.count ?? 0 }
-    private var markerCount: Int { recorder.manifest?.markers.count ?? 0 }
 
     var body: some View {
         ScrollView {
@@ -37,11 +36,15 @@ struct StoppedView: View {
                     .font(.footnote)
                     .multilineTextAlignment(.center)
 
-                if markerCount > 0 {
-                    Label("\(markerCount) จุดสำคัญ", systemImage: "star.fill")
+                if recorder.markerCount > 0 {
+                    Label("\(recorder.markerCount) เครื่องหมาย", systemImage: "bookmark.fill")
                         .font(.footnote)
                         .foregroundStyle(.yellow)
                 }
+
+                #if os(watchOS)
+                AfterStopDetails()
+                #endif
 
                 if let errorMessage {
                     Text(errorMessage)
@@ -62,9 +65,13 @@ struct StoppedView: View {
             }
         }
         .task(id: status) {
+            #if os(watchOS)
+            return // The Watch shows title/type/playback here, so it waits for "เสร็จ".
+            #else
             guard !isInterrupted else { return }
             try? await Task.sleep(for: .seconds(Theme.savedSummarySeconds))
             recorder.reset()
+            #endif
         }
     }
 

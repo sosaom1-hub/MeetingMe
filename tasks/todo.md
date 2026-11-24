@@ -227,7 +227,7 @@ Ownership and next steps: see [HANDOFF.md](HANDOFF.md). One task = one commit, p
 - [x] **A3: Recording confidence** (done 2026-11-24; silence threshold uncalibrated, battery stop untested on device) haptic + banner after sustained silence ("mic covered?", threshold uncalibrated until real audio); optional gentle haptic every 10 min (off by default); "about N h left" from battery + storage; at battery < 10 % close the chunk safely and stop.
 - [x] **A4: Stray-tap protection** (done 2026-11-24, changed from Water Lock): `WKInterfaceDevice.enableWaterLock()` is allowed only "in an active workout or location session" (WKInterfaceDevice.h, watchOS 27.2 SDK), which SPEC forbids as a keep-alive workaround. Built instead: opt-in "hold to stop" (1.2 s) in Watch settings; VoiceOver stops directly.
 - [x] **A5: True pause/resume** (done 2026-11-24; pause closes the chunk, resume opens the next one; real-recording test passes in simulator) within one part; `.paused` phase handled everywhere `phase` is switched; chunk and crash-recovery guarantees kept, with tests.
-- [ ] **A6: After stop** quick title (recent titles; calendar titles from B3 later), recording type, and "play last 10 s" to check audio.
+- [x] **A6: After stop** (done 2026-11-24; quick title, type, last-10-s playback on Watch. Calendar titles wait for B3) quick title (recent titles; calendar titles from B3 later), recording type, and "play last 10 s" to check audio.
 
 ### Batch B — Watch ↔ iPhone (session app-apple-watch-ai-5e; details in its HANDOFF row)
 

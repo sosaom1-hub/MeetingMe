@@ -24,6 +24,13 @@ struct MeetingStore {
         }
 
         meeting.markers = Array(Set(meeting.markers + manifest.markers)).sorted()
+        // Title/type picked on the Watch after stopping; never overwrite a title the user changed on the iPhone.
+        if let title = manifest.title, meeting.title == Meeting.defaultTitle(for: meeting.startedAt) {
+            meeting.title = title
+        }
+        if let type = manifest.recordingType, RecordingType(rawValue: type) != nil {
+            meeting.recordingTypeRaw = type
+        }
         if let notes = manifest.notes {
             meeting.timedNotes = Array(Set(meeting.timedNotes + notes)).sorted { $0.time < $1.time }
         }

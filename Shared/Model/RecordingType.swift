@@ -1,7 +1,7 @@
 import Foundation
 
 /// What was recorded. Shapes the summary prompt; the headings stay the same so results stay comparable.
-enum RecordingType: String, CaseIterable, Identifiable, Sendable {
+nonisolated enum RecordingType: String, CaseIterable, Identifiable, Sendable {
     case meeting, lecture, interview, consultation
 
     var id: Self { self }

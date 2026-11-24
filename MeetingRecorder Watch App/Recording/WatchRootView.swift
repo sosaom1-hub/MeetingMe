@@ -40,6 +40,7 @@ struct WatchRootView: View {
     private func connect() {
         recorder.onChunkClosed = { manifest, index in transfer.send(chunk: index, of: manifest) }
         recorder.onFinish = { manifest in transfer.sendManifest(manifest) }
+        recorder.onManifestEdited = { manifest in transfer.sendManifest(manifest) }
 
         // A recording still marked "recording" on launch means the app was killed mid-recording.
         let recovered = (try? RecoveryScanner.recover(

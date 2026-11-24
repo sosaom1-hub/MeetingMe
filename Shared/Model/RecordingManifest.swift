@@ -29,6 +29,10 @@ nonisolated struct RecordingManifest: Codable, Hashable, Sendable, Identifiable 
     var markers: [TimeInterval]
     /// Optional so manifests written before notes existed still decode.
     var notes: [TimedNote]?
+    /// Set on the Watch after stopping (quick title); nil keeps the iPhone's default title.
+    var title: String?
+    /// `RecordingType.rawValue`, set after stopping; nil means not chosen.
+    var recordingType: String?
 
     init(
         id: UUID = UUID(),
