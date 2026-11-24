@@ -1,6 +1,6 @@
 # Spec: Meeting Recorder (Apple Watch + iPhone + personal Mac server)
 
-Status: **v2 approved 2026-11-24 (sections 0–12). v3 feature expansion (section 13) is a PROPOSAL awaiting approval.** Tasks 1, 3 and 4 are built; see `tasks/todo.md`.
+Status: **v2 + v3 approved 2026-11-24.** Tasks 1, 3 and 4 are built; see `tasks/todo.md`.
 
 ## 0. Verified environment (2026-11-24)
 
@@ -178,7 +178,7 @@ Manual device checks: 30+ min Watch recording wrist-down, call mid-recording, tr
 
 ## 13. v3 proposal: reach the feature level of leading AI note-taker apps
 
-Status: **PROPOSAL, not approved.** Benchmark app: "Recco: AI Meeting Note Taker" (Next Pixel Ltd, App Store id6757509070, read 2026-11-24). We copy **capabilities only**: no name, branding, layout, art, or text.
+Status: **Approved 2026-11-24.** Benchmark app: "Recco: AI Meeting Note Taker" (Next Pixel Ltd, App Store id6757509070, read 2026-11-24). We copy **capabilities only**: no name, branding, layout, art, or text.
 
 ### 13.1 Feature comparison
 
@@ -228,8 +228,8 @@ Diarization needs the whole meeting, so it runs after all chunks have arrived. A
 
 Build order after the current Phase E: `notes` + `search` → `ask-ai` → `speakers` → `quick-start` → `import` → `ipad`.
 
-### 13.5 Open questions for v3
-1. **AI chat engine.** (a) Claude app hand-off: free, one manual step (recommended). (b) Local LLM on the Mac: automatic and free, but Thai quality untested. (c) Claude API: automatic, but pay per use.
-2. **iPad** in this release, or later?
-3. **Paid Apple Developer Program** (99 USD/yr)? Needed for iCloud sync to the Mac app. Device testing works without it, but free-team installs expire after 7 days.
-4. Approve the v3 module list and build order?
+### 13.5 Decisions (2026-11-24, user delegated: "no extra cost, single user")
+1. **AI chat engine:** Claude app hand-off (free). No API, no local LLM for now.
+2. **iPad:** last in the v3 order.
+3. **No paid Apple Developer Program.** No iCloud/CloudKit: the Mac app does transcription only, and the meeting library lives on iPhone. Free-team 7-day expiry is handled by automatic re-signing from the Mac (`scripts/renew-devices.sh` + launchd, see `docs/free-signing.md`). Keep App IDs ≤ 3 (iPhone, Watch, later widget).
+4. **v3 module list and build order approved** as in §13.4.
