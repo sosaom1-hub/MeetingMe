@@ -25,6 +25,12 @@ struct PhoneRootView: View {
             durationOf: RecordingPaths.duration(of:)
         )) ?? []
         recovered.forEach(store.upsert)
+
+        // Meetings saved before full-text search existed have an empty index.
+        let unindexed = (try? context.fetch(FetchDescriptor<Meeting>(predicate: #Predicate { $0.searchText == "" }))) ?? []
+        unindexed.forEach { $0.refreshSearchText() }
+        try? context.save()
+
         transfer.activate()
     }
 }

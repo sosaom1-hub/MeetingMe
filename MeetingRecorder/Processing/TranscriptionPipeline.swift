@@ -29,6 +29,7 @@ final class TranscriptionPipeline {
                     chunk: meeting.directory.appending(path: chunk.fileName),
                     language: language
                 )
+                meeting.refreshSearchText()
                 try? meeting.modelContext?.save()
             } catch TranscriptionError.serverUnreachable {
                 meeting.state = .waitingForServer

@@ -13,6 +13,13 @@ struct TranscriptSection: View {
     @AppStorage(AppSettings.audioRetention) private var retentionRaw = AudioRetention.keep.rawValue
     @Environment(\.modelContext) private var context
     @State private var isShowingDisclosure = false
+    @State private var editing: EditingLine?
+
+    struct EditingLine: Identifiable {
+        let source: TranscriptLine.Source
+        var text: String
+        var id: TranscriptLine.Source { source }
+    }
 
     private var chunks: [AudioChunk] { meeting.sortedChunks }
     private var doneCount: Int { chunks.count { $0.result != nil } }
@@ -40,7 +47,12 @@ struct TranscriptSection: View {
             Text("ถอดเสียง")
         } footer: {
             if isComplete {
-                Text("ถอดเสียงด้วย OpenThai บนเครื่อง Mac ของคุณ ข้อความอาจผิดได้ โดยเฉพาะชื่อคนและคำเฉพาะ")
+                Text("ถอดเสียงด้วย OpenThai บนเครื่อง Mac ของคุณ ข้อความอาจผิดได้ โดยเฉพาะชื่อคนและคำเฉพาะ กดค้างที่บรรทัดเพื่อแก้ไข")
+            }
+        }
+        .sheet(item: $editing) { line in
+            EditLineSheet(original: line.text) { newText in
+                MeetingStore(context: context).editTranscript(meeting, at: line.source, text: newText)
             }
         }
         .sheet(isPresented: $isShowingDisclosure) {
@@ -98,6 +110,25 @@ struct TranscriptSection: View {
                 Text(text)
                     .lineSpacing(4)
                     .textSelection(.enabled)
+            }
+            .contextMenu {
+                if let source = line.source {
+                    Button("แก้ไขข้อความ", systemImage: "pencil") {
+                        editing = EditingLine(source: source, text: text)
+                    }
+                }
+            }
+            .accessibilityAction(named: "แก้ไขข้อความ") {
+                if let source = line.source {
+                    editing = EditingLine(source: source, text: text)
+                }
+            }
+        case .note(let text):
+            HStack(alignment: .firstTextBaseline) {
+                timeButton(line.start)
+                Label(text, systemImage: "note.text")
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("โน้ตของคุณ: \(text)")
             }
         case .marker:
             HStack {

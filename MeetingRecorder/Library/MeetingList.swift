@@ -5,10 +5,16 @@ struct MeetingList: View {
     @Query private var meetings: [Meeting]
     @State private var pendingDelete: Meeting?
     private let isSearching: Bool
+    private let query: String
 
     init(searchText: String, sort: LibrarySort) {
-        let text = searchText
-        let filter: Predicate<Meeting>? = text.isEmpty ? nil : #Predicate { $0.title.localizedStandardContains(text) }
+        let text = searchText.trimmingCharacters(in: .whitespaces)
+        let lowered = text.lowercased()
+        // Title, plus the lowercased index of transcript, summary and notes (see Meeting.refreshSearchText).
+        let filter: Predicate<Meeting>? = text.isEmpty ? nil : #Predicate {
+            $0.title.localizedStandardContains(text) || $0.searchText.contains(lowered)
+        }
+        query = text
         let order = sort == .date
             ? [SortDescriptor(\Meeting.startedAt, order: .reverse)]
             : [SortDescriptor(\Meeting.title)]
@@ -30,7 +36,7 @@ struct MeetingList: View {
         } else {
             List(meetings) { meeting in
                 NavigationLink(value: meeting) {
-                    MeetingRow(meeting: meeting)
+                    MeetingRow(meeting: meeting, snippet: isSearching ? meeting.snippet(matching: query) : nil)
                 }
                 .swipeActions {
                     Button("ลบ", systemImage: "trash", role: .destructive) {

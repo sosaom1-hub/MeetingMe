@@ -14,15 +14,19 @@ struct LibraryView: View {
     @State private var startRequested = false
     @State private var isShowingRecorder = false
     @State private var isShowingSettings = false
+    @State private var isShowingAsk = false
 
     var body: some View {
         NavigationStack {
             MeetingList(searchText: searchText, sort: sort)
                 .navigationTitle("บันทึกประชุม")
-                .searchable(text: $searchText, prompt: "ค้นหาชื่อประชุม")
+                .searchable(text: $searchText, prompt: "ค้นหาในชื่อ, transcript, สรุป, โน้ต")
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("ตั้งค่า", systemImage: "gearshape") { isShowingSettings = true }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("ถาม AI", systemImage: "sparkles") { isShowingAsk = true }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Menu("เรียงลำดับ", systemImage: "arrow.up.arrow.down") {
@@ -57,6 +61,9 @@ struct LibraryView: View {
         }
         .sheet(isPresented: $isShowingSettings) {
             SettingsView()
+        }
+        .sheet(isPresented: $isShowingAsk) {
+            AskAISheet()
         }
     }
 }

@@ -24,6 +24,10 @@ struct MeetingStore {
         }
 
         meeting.markers = Array(Set(meeting.markers + manifest.markers)).sorted()
+        if let notes = manifest.notes {
+            meeting.timedNotes = Array(Set(meeting.timedNotes + notes)).sorted { $0.time < $1.time }
+        }
+        meeting.refreshSearchText()
         meeting.duration = meeting.sortedChunks.reduce(0) { $0 + $1.duration }
         if manifest.status != .recording {
             meeting.expectedChunkCount = max(meeting.expectedChunkCount ?? 0, manifest.chunks.count)
@@ -49,6 +53,20 @@ struct MeetingStore {
     func delete(_ meeting: Meeting) {
         try? FileManager.default.removeItem(at: meeting.directory)
         context.delete(meeting)
+        try? context.save()
+    }
+
+    /// Replaces one transcript segment's text (user correction). Empty text is rejected.
+    func editTranscript(_ meeting: Meeting, at source: TranscriptLine.Source, text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let chunks = meeting.sortedChunks
+        guard !trimmed.isEmpty, chunks.indices.contains(source.chunk),
+              var result = chunks[source.chunk].result,
+              result.segments.indices.contains(source.segment) else { return }
+        result.segments[source.segment].text = trimmed
+        result.text = result.segments.map(\.text).joined(separator: " ")
+        chunks[source.chunk].result = result
+        meeting.refreshSearchText()
         try? context.save()
     }
 

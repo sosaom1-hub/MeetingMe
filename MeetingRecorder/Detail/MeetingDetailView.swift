@@ -8,6 +8,7 @@ struct MeetingDetailView: View {
     @State private var pendingDelete: Meeting?
     @State private var isShowingSummary = false
     @State private var isShowingExport = false
+    @State private var isShowingAsk = false
 
     var body: some View {
         List {
@@ -34,11 +35,17 @@ struct MeetingDetailView: View {
 
             SummarySection(meeting: meeting) { isShowingSummary = true }
 
+            NotesSection(meeting: meeting, player: player)
+
             TranscriptSection(meeting: meeting, player: player)
         }
         .navigationTitle(meeting.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("ถาม AI", systemImage: "sparkles") { isShowingAsk = true }
+                    .disabled(!meeting.sortedChunks.contains { $0.result != nil })
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button("ส่งออก", systemImage: "square.and.arrow.up") { isShowingExport = true }
                     .disabled(meeting.transcriptLines.isEmpty && meeting.summaryText == nil)
@@ -51,10 +58,12 @@ struct MeetingDetailView: View {
         }
         .sheet(isPresented: $isShowingSummary) { SummarySheet(meeting: meeting) }
         .sheet(isPresented: $isShowingExport) { ExportSheet(meeting: meeting) }
+        .sheet(isPresented: $isShowingAsk) { AskAISheet(initialSelection: [meeting.id]) }
         .meetingDeleteConfirmation(for: $pendingDelete) { dismiss() }
         .task(id: meeting.chunks?.count) {
             await player.load(meeting.sortedChunks.map { meeting.directory.appending(path: $0.fileName) })
         }
         .onDisappear(perform: player.pause)
+        .onChange(of: meeting.title) { meeting.refreshSearchText() }
     }
 }

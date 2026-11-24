@@ -81,6 +81,14 @@ final class ChunkedRecorder {
         saveManifest()
     }
 
+    /// Typed note at the current recording time (iPhone only; the Watch has no keyboard flow).
+    func addNote(_ text: String, at time: TimeInterval) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard phase == .recording, !trimmed.isEmpty else { return }
+        manifest?.notes = (manifest?.notes ?? []) + [.init(time: time, text: trimmed)]
+        saveManifest()
+    }
+
     /// Shows a recording found by `RecoveryScanner` so the user can continue or finish it.
     func adoptRecovered(_ recovered: RecordingManifest) {
         guard phase == .idle else { return }

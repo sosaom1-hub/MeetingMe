@@ -174,3 +174,42 @@ Tests run only when the user asks.
 
 ### Checkpoint F
 - [ ] SPEC §10 success criteria all met · ready for daily use
+
+---
+
+## v3 — feature level of leading note-taker apps (SPEC §13)
+
+- [x] **Task 20: Notes and transcript editing** (done 2026-11-24)
+  - Acceptance: typed notes during iPhone recording (saved with their time, shown in the transcript timeline); free-text "my notes" per meeting; edit any transcript line; edits are saved and used by summary and export.
+  - Verify: tests for timeline with notes and line edits; simulator check.
+  - Size: M
+
+- [x] **Task 21: Full-text search** (done 2026-11-24)
+  - Acceptance: library search matches title, transcript, pasted summary, and notes; matching rows show a short snippet around the match.
+  - Verify: store tests for the search index; simulator check.
+  - Size: S
+
+- [x] **Task 22: Ask AI (Claude hand-off) and recording types** (done 2026-11-24)
+  - Acceptance: pick one or more meetings and a template (free question, follow-up email, compare meetings, recurring topics); grounded prompt with the same split rules; recording type (meeting / lecture / interview) shapes the summary prompt.
+  - Verify: prompt builder tests; manual paste into Claude.
+  - Size: M
+
+- [ ] **Task 23: Speaker labels**
+  - Acceptance: Mac endpoint runs diarization on the whole meeting and returns speaker turns; iPhone assigns each transcript segment the most-overlapping speaker; speakers renameable; off by default until benchmarked.
+  - Verify: benchmark speed and RAM on a 30+ min file; merge logic tests.
+  - Size: L (split server / app)
+
+- [ ] **Task 24: Quick start (App Intents)**
+  - Acceptance: Control Center control and Action button start an iPhone recording; Live Activity while recording; Siri/Shortcuts "เริ่มบันทึกประชุม".
+  - Verify: device check (needs signing). Check free-team App Group limits first.
+  - Size: M
+
+- [ ] **Task 25: Import audio files**
+  - Acceptance: pick an audio file from Files; it becomes a meeting (split into 5-min chunks) and goes through the same pipeline.
+  - Verify: import of an m4a/mp3 in simulator, then transcribe.
+  - Size: M
+
+- [ ] **Task 26: iPad layout**
+  - Acceptance: NavigationSplitView library + detail on iPad; same features at every size.
+  - Verify: iPad simulator screenshots.
+  - Size: S

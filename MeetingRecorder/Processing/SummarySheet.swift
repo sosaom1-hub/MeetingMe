@@ -19,17 +19,30 @@ struct SummarySheet: View {
         ClaudePromptBuilder(
             title: meeting.title,
             date: meeting.startedAt,
-            transcript: TranscriptLine.plainText(meeting.transcriptLines),
+            transcript: Self.promptBody(for: meeting),
             outputs: outputs,
             language: language,
-            glossary: glossary
+            glossary: glossary,
+            recordingType: meeting.recordingType
         ).parts()
+    }
+
+    /// Transcript lines, then the user's free-text notes marked as theirs.
+    static func promptBody(for meeting: Meeting) -> String {
+        let transcript = TranscriptLine.plainText(meeting.transcriptLines)
+        let notes = meeting.myNotes.trimmingCharacters(in: .whitespacesAndNewlines)
+        return notes.isEmpty ? transcript : transcript + "\n\n📝 โน้ตเพิ่มเติมของผู้บันทึก (ไม่ใช่คำพูดในห้อง):\n" + notes
     }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
+                    Picker("ประเภท", selection: $meeting.recordingTypeRaw) {
+                        ForEach(RecordingType.allCases) { type in
+                            Label(type.label, systemImage: type.systemImage).tag(type.rawValue)
+                        }
+                    }
                     ForEach(OutputKind.allCases) { kind in
                         Toggle(isOn: binding(for: kind)) {
                             Label(kind.label, systemImage: kind.systemImage)
@@ -142,6 +155,7 @@ struct SummarySheet: View {
         meeting.summaryText = pasted.trimmingCharacters(in: .whitespacesAndNewlines)
         meeting.summaryPastedAt = .now
         meeting.state = .summaryReady
+        meeting.refreshSearchText()
         try? meeting.modelContext?.save()
         dismiss()
     }

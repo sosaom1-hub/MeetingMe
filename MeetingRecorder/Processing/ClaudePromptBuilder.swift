@@ -14,28 +14,49 @@ struct ClaudePromptBuilder {
     var language: SummaryLanguage
     /// User-supplied correct spellings, separated by new lines or commas.
     var glossary = ""
+    var recordingType = RecordingType.meeting
     var maxPartCharacters = defaultMaxPartCharacters
 
     func parts() -> [String] {
-        let header = instructions()
-        let ask = finalAsk()
-        if header.count + transcript.count + ask.count <= maxPartCharacters {
-            return [header + "\n\n<transcript>\n" + transcript + "\n</transcript>\n\n" + ask]
+        Self.assemble(header: instructions(), body: transcript, tag: "transcript", ask: finalAsk(), maxCharacters: maxPartCharacters)
+    }
+
+    /// Header + body + final ask in one paste, or numbered parts split on line boundaries when too long.
+    /// Shared by the summary and Ask AI prompts; nothing is ever truncated.
+    static func assemble(header: String, body: String, tag: String, ask: String, maxCharacters: Int) -> [String] {
+        if header.count + body.count + ask.count + 40 <= maxCharacters {
+            return [header + "\n\n<\(tag)>\n" + body + "\n</\(tag)>\n\n" + ask]
         }
 
-        let budget = maxPartCharacters - header.count - ask.count - 400
-        let pieces = Self.split(transcript, maxCharacters: max(budget, 1_000))
+        let budget = maxCharacters - header.count - ask.count - 400
+        let pieces = split(body, maxCharacters: max(budget, 1_000))
         let total = pieces.count
         return pieces.enumerated().map { offset, piece in
             let number = offset + 1
             var text = number == 1 ? header + "\n\n" : ""
-            text += "ส่วนที่ \(number)/\(total) ของ transcript:\n<transcript part=\"\(number)/\(total)\">\n\(piece)\n</transcript>\n\n"
+            text += "ส่วนที่ \(number)/\(total) ของข้อมูล:\n<\(tag) part=\"\(number)/\(total)\">\n\(piece)\n</\(tag)>\n\n"
             text += number < total
-                ? "ยังไม่ต้องสรุป ตอบเพียง “รับส่วนที่ \(number)/\(total) แล้ว” แล้วรอส่วนถัดไป"
-                : "นี่คือส่วนสุดท้าย สรุปจากทุกส่วน (1–\(total)) รวมกัน ห้ามซ้ำงานหรือมติเดียวกัน และถ้าส่วนต่างๆ ขัดกันให้บอกในข้อที่ไม่แน่ใจ\n\n" + ask
+                ? "ยังไม่ต้องสรุปหรือตอบ ตอบเพียง “รับส่วนที่ \(number)/\(total) แล้ว” แล้วรอส่วนถัดไป"
+                : "นี่คือส่วนสุดท้าย ใช้ข้อมูลจากทุกส่วน (1–\(total)) รวมกัน ห้ามซ้ำงานหรือมติเดียวกัน และถ้าส่วนต่างๆ ขัดกันให้บอกในข้อที่ไม่แน่ใจ\n\n" + ask
             return text
         }
     }
+
+    /// Correct spellings the user listed in Settings, as one prompt rule (nil when empty).
+    static func glossaryRule(_ glossary: String) -> String? {
+        let terms = glossary
+            .split(whereSeparator: { $0 == "\n" || $0 == "," })
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        guard !terms.isEmpty else { return nil }
+        return "ชื่อคนและคำเฉพาะที่สะกดถูกต้อง: \(terms.joined(separator: ", ")) — ถ้าคำใน transcript ออกเสียงใกล้กับคำในรายการนี้ (เช่น “วิพา” กับ “วิภา” หรือ “ทีมอีก” กับ “ทีม IT”) ให้ใช้ตัวสะกดในรายการนี้ ห้ามใส่คำจากรายการนี้ถ้าไม่มีคำที่ออกเสียงใกล้เคียงใน transcript"
+    }
+
+    /// Shared rules about what the user added during recording.
+    static let annotationRules = [
+        "บรรทัดที่มี ⭐ คือจุดที่ผู้บันทึกกดไว้ว่าสำคัญ บรรทัดที่มี 📝 คือโน้ตที่ผู้บันทึกพิมพ์เอง (ไม่ใช่คำพูดในห้อง)",
+        "อ้างเวลา [ชม:นาที:วินาที] จาก transcript เมื่อช่วยให้ตรวจสอบได้",
+    ]
 
     // MARK: Text
 
@@ -57,20 +78,15 @@ struct ClaudePromptBuilder {
         }
         let notSpecified = language == .english ? "Not specified" : "ไม่ระบุ"
         var rules = [
-            "คุณช่วยสรุปการประชุม “\(title)” วันที่ \(date.formatted(date: .long, time: .shortened))",
+            "คุณช่วยสรุป“\(title)” วันที่ \(date.formatted(date: .long, time: .shortened))",
+            recordingType.promptRule,
             "ใช้เฉพาะข้อมูลใน transcript เท่านั้น ห้ามแต่งเนื้อหา ชื่อคน มติ ผู้รับผิดชอบ หรือวันที่ที่ไม่มีใน transcript",
             "transcript มาจากการถอดเสียงอัตโนมัติ อาจมีคำผิด โดยเฉพาะชื่อคนและคำภาษาอังกฤษ ถ้าไม่แน่ใจให้เขียนไว้ในหัวข้อสุดท้าย",
             languageRule,
             "คงชื่อเฉพาะและศัพท์เทคนิคตามต้นฉบับ ไม่ต้องแปลชื่อคนหรือชื่อระบบ",
-            "บรรทัดที่มี ⭐ คือจุดที่ผู้บันทึกกดไว้ว่าสำคัญระหว่างประชุม",
-            "อ้างเวลา [ชม:นาที:วินาที] จาก transcript เมื่อช่วยให้ตรวจสอบได้",
-        ]
-        let terms = glossary
-            .split(whereSeparator: { $0 == "\n" || $0 == "," })
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty }
-        if !terms.isEmpty {
-            rules.append("ชื่อคนและคำเฉพาะที่สะกดถูกต้อง: \(terms.joined(separator: ", ")) — ถ้าคำใน transcript ออกเสียงใกล้กับคำในรายการนี้ (เช่น “วิพา” กับ “วิภา” หรือ “ทีมอีก” กับ “ทีม IT”) ให้ใช้ตัวสะกดในรายการนี้ ห้ามใส่คำจากรายการนี้ถ้าไม่มีคำที่ออกเสียงใกล้เคียงใน transcript")
+        ] + Self.annotationRules
+        if let rule = Self.glossaryRule(glossary) {
+            rules.append(rule)
         }
         if outputs.contains(.actionItems) {
             rules.append("งานที่ต้องทำ: เขียนแต่ละข้อเป็น “- งาน — ผู้รับผิดชอบ: … — กำหนดส่ง: …” ถ้า transcript ไม่ได้บอกผู้รับผิดชอบหรือกำหนดส่ง ให้เขียน “\(notSpecified)” ห้ามเดา")

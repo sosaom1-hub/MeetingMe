@@ -43,12 +43,18 @@ struct ExportDocument: Equatable, Sendable {
             blocks.append(.paragraph("สรุปโดย Claude (ผู้ใช้วางเอง) ตรวจกับ transcript ก่อนใช้งาน"))
         }
 
+        if !meeting.myNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            blocks.append(.heading("โน้ตของฉัน"))
+            blocks += bodyBlocks(meeting.myNotes)
+        }
+
         if includeTranscript {
             blocks.append(.heading("Transcript"))
             for line in meeting.transcriptLines {
                 switch line.kind {
                 case .speech(let text): blocks.append(.transcriptLine(time: line.timestamp, text: text))
                 case .marker: blocks.append(.transcriptLine(time: line.timestamp, text: "⭐ จุดสำคัญ"))
+                case .note(let text): blocks.append(.transcriptLine(time: line.timestamp, text: "📝 โน้ต: \(text)"))
                 case .pending(let chunk): blocks.append(.transcriptLine(time: line.timestamp, text: "(ส่วนที่ \(chunk) ยังไม่ได้ถอดเสียง)"))
                 }
             }

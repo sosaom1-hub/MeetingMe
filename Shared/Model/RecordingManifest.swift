@@ -12,6 +12,12 @@ nonisolated struct RecordingManifest: Codable, Hashable, Sendable, Identifiable 
         var duration: TimeInterval
     }
 
+    /// A note typed during recording, at `time` seconds from the start.
+    struct TimedNote: Codable, Hashable, Sendable {
+        var time: TimeInterval
+        var text: String
+    }
+
     static let fileName = "manifest.json"
 
     let id: UUID
@@ -21,6 +27,8 @@ nonisolated struct RecordingManifest: Codable, Hashable, Sendable, Identifiable 
     var chunks: [Chunk]
     /// ⭐ "จุดสำคัญ" markers, in seconds from the start of the recording.
     var markers: [TimeInterval]
+    /// Optional so manifests written before notes existed still decode.
+    var notes: [TimedNote]?
 
     init(
         id: UUID = UUID(),

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct MeetingRow: View {
     let meeting: Meeting
+    /// Text around a search match in transcript, summary or notes.
+    var snippet: String?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -28,6 +30,14 @@ struct MeetingRow: View {
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
+
+            if let snippet {
+                Text(snippet)
+                    .font(.subheadline)
+                    .lineLimit(2)
+                    .padding(.vertical, 2)
+                    .accessibilityLabel("พบใน: \(snippet)")
+            }
 
             StatusChip(state: meeting.state, source: meeting.source)
         }
