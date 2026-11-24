@@ -33,7 +33,8 @@ Assumed (correct before implementation if wrong):
 7. iPhone → Mac: one `POST /v1/transcribe` per chunk (≈5 min audio each), so an upload or decode failure retries one chunk, not the whole meeting. Server cuts each chunk at pauses (`split=auto`).
 8. No third-party Swift dependencies. DOCX via in-house store-only ZIP writer.
 9. Default UI language Thai via String Catalog.
-10. Results (transcript, pasted summary) live on iPhone. Watch shows recording/transfer/processing **status only**, never transcript text.
+10. Results (transcript, pasted summary) live on iPhone. Watch shows recording/transfer/processing status, never transcript text.
+    **Amended 2026-11-24 (user decision, relayed by session 6c):** the Watch may also show short summary content (decisions, action items) from the pasted summary. Full transcripts stay off the Watch.
 
 ## 2. Objective
 

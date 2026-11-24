@@ -213,3 +213,30 @@ Tests run only when the user asks.
   - Acceptance: NavigationSplitView library + detail on iPad; same features at every size.
   - Verify: iPad simulator screenshots.
   - Size: S
+
+---
+
+## v3 Watch — premium Watch features (assigned 2026-11-24 by the user via session 4c)
+
+Ownership and next steps: see [HANDOFF.md](HANDOFF.md). One task = one commit, pushed right away.
+
+### Batch A — on-wrist recording (session app-apple-watch-ai-da)
+
+- [ ] **A1: Marker types** ⭐ important, ✅ action item, ⚖️ decision, ❓ question, picked with the Digital Crown while recording. Stored per marker in the manifest (old manifests decode as ⭐); shown on iPhone; explained to Claude in the prompt.
+- [ ] **A2: App Intents** Start / Stop / Add marker as App Shortcuts (Siri, Shortcuts on the Ultra Action button). No new App ID or extension. Verify watchOS 27 APIs first.
+- [ ] **A3: Recording confidence** haptic + banner after sustained silence ("mic covered?", threshold uncalibrated until real audio); optional gentle haptic every 10 min (off by default); "about N h left" from battery + storage; at battery < 10 % close the chunk safely and stop.
+- [ ] **A4: Water Lock while recording** (opt-in) so stray taps cannot stop it. Verify the watchOS 27 API first.
+- [ ] **A5: True pause/resume** within one part; `.paused` phase handled everywhere `phase` is switched; chunk and crash-recovery guarantees kept, with tests.
+- [ ] **A6: After stop** quick title (recent titles; calendar titles from B3 later), recording type, and "play last 10 s" to check audio.
+
+### Batch B — Watch ↔ iPhone (session app-apple-watch-ai-5e; details in its HANDOFF row)
+
+- [ ] **B1: Watch as iPhone remote**
+- [ ] **B2: Pipeline status on the Watch** (may include short decisions/action items, per the SPEC §1.10 amendment)
+- [ ] **B3: Calendar titles and notifications on iPhone**
+
+### Needs the user's decision (not assigned)
+
+- Complication / Smart Stack / Control Center widget (uses the 3rd free App ID).
+- Action-item checklist on the wrist.
+- Reminder: Task 2 (real Ultra 4 wrist-down recording test) is still the main risk for everything above.
