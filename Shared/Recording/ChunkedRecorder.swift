@@ -76,9 +76,22 @@ final class ChunkedRecorder {
     }
 
     func addMarker() {
+        addMarker(.important)
+    }
+
+    func addMarker(_ kind: MarkerKind) {
         guard phase == .recording else { return }
-        manifest?.markers.append(elapsed)
-        saveManifest()
+        if kind == .important {
+            manifest?.markers.append(elapsed)
+            saveManifest()
+        } else {
+            addNote(kind.noteText, at: elapsed)
+        }
+    }
+
+    /// All markers of every kind so far (for counts on the recording screen).
+    var markerCount: Int {
+        (manifest?.markers.count ?? 0) + (manifest?.notes ?? []).count { MarkerKind(noteText: $0.text) != nil }
     }
 
     /// Typed note at the current recording time (iPhone only; the Watch has no keyboard flow).

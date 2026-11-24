@@ -222,7 +222,7 @@ Ownership and next steps: see [HANDOFF.md](HANDOFF.md). One task = one commit, p
 
 ### Batch A — on-wrist recording (session app-apple-watch-ai-da)
 
-- [ ] **A1: Marker types** ⭐ important, ✅ action item, ⚖️ decision, ❓ question, picked with the Digital Crown while recording. Stored per marker in the manifest (old manifests decode as ⭐); shown on iPhone; explained to Claude in the prompt.
+- [x] **A1: Marker types** (done 2026-11-24; Digital Crown picker, typed markers stored as notes) ⭐ important, ✅ action item, ⚖️ decision, ❓ question, picked with the Digital Crown while recording. Stored per marker in the manifest (old manifests decode as ⭐); shown on iPhone; explained to Claude in the prompt.
 - [ ] **A2: App Intents** Start / Stop / Add marker as App Shortcuts (Siri, Shortcuts on the Ultra Action button). No new App ID or extension. Verify watchOS 27 APIs first.
 - [ ] **A3: Recording confidence** haptic + banner after sustained silence ("mic covered?", threshold uncalibrated until real audio); optional gentle haptic every 10 min (off by default); "about N h left" from battery + storage; at battery < 10 % close the chunk safely and stop.
 - [ ] **A4: Water Lock while recording** (opt-in) so stray taps cannot stop it. Verify the watchOS 27 API first.

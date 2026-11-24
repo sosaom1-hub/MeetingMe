@@ -115,3 +115,29 @@ struct AskPromptTests {
         #expect(prompt.contains("แนวคิดหลัก"))
     }
 }
+
+struct MarkerKindTests {
+    @Test func typedMarkersRoundTripThroughNotes() {
+        for kind in MarkerKind.allCases where kind != .important {
+            #expect(MarkerKind(noteText: kind.noteText) == kind)
+        }
+        #expect(MarkerKind(noteText: "⭐ จุดสำคัญ") == nil) // ⭐ lives in `markers`, never in notes
+        #expect(MarkerKind(noteText: "✅ งานที่ต้องทำ เพิ่มเติม") == nil) // typed text is a normal note
+    }
+
+    @Test func promptShowsWatchMarkersAsMarkersNotTypedNotes() {
+        let lines = TranscriptLine.build(
+            chunks: [(300, ChunkTranscript(text: "x", segments: [.init(start: 1, end: 2, text: "x")]))],
+            markers: [],
+            notes: [.init(time: 30, text: MarkerKind.decision.noteText), .init(time: 40, text: "โทรหาผู้ขาย")]
+        )
+        let text = TranscriptLine.plainText(lines)
+        #expect(text.contains("[0:00:30] ⚖️ ผู้บันทึกทำเครื่องหมาย: มติ"))
+        #expect(text.contains("[0:00:40] 📝 โน้ตผู้บันทึก: โทรหาผู้ขาย"))
+    }
+
+    @Test func promptExplainsMarkerEmoji() throws {
+        let prompt = try #require(ClaudePromptBuilder(title: "t", date: .now, transcript: "x", outputs: [.summary], language: .thai).parts().first)
+        #expect(prompt.contains("✅ = มีงานที่ต้องทำ"))
+    }
+}

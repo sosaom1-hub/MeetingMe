@@ -31,7 +31,7 @@ struct MeetingDetailView: View {
                 }
             }
 
-            MarkersSection(markers: meeting.markers, player: player)
+            MarkersSection(markers: meeting.markers, notes: meeting.timedNotes, player: player)
 
             SummarySection(meeting: meeting) { isShowingSummary = true }
 

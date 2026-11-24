@@ -3,8 +3,11 @@ import SwiftUI
 struct RecordingView: View {
     @Environment(ChunkedRecorder.self) private var recorder
     @Environment(\.isLuminanceReduced) private var isLuminanceReduced
+    /// Marker type chosen with the Digital Crown (index into `MarkerKind.allCases`).
+    @State private var markerIndex = 0
 
-    private var markerCount: Int { recorder.manifest?.markers.count ?? 0 }
+    private var markerCount: Int { recorder.markerCount }
+    private var markerKind: MarkerKind { MarkerKind(rawValue: markerIndex) ?? .important }
 
     private var elapsedText: String {
         // Wrist down / Always-On: no per-second updates.
@@ -18,10 +21,10 @@ struct RecordingView: View {
                 RecordingDot()
                 Spacer()
                 if markerCount > 0 {
-                    Label("\(markerCount)", systemImage: "star.fill")
+                    Label("\(markerCount)", systemImage: "bookmark.fill")
                         .font(.footnote)
                         .foregroundStyle(.yellow)
-                        .accessibilityLabel("จุดสำคัญ \(markerCount) จุด")
+                        .accessibilityLabel("ทำเครื่องหมายแล้ว \(markerCount) จุด")
                 }
             }
 
@@ -39,12 +42,31 @@ struct RecordingView: View {
 
             Spacer(minLength: 0)
 
+            if !isLuminanceReduced {
+                Label("หมุน Crown: \(markerKind.label)", systemImage: "digitalcrown.arrow.clockwise")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .accessibilityHidden(true)
+            }
+
             GlassEffectContainer {
                 HStack {
-                    Button("จุดสำคัญ", systemImage: "star.fill", action: recorder.addMarker)
-                        .labelStyle(.iconOnly)
-                        .buttonStyle(.glass)
-                        .buttonBorderShape(.circle)
+                    Button {
+                        recorder.addMarker(markerKind)
+                    } label: {
+                        Text(markerKind.emoji)
+                            .font(.title3)
+                    }
+                    .buttonStyle(.glass)
+                    .buttonBorderShape(.circle)
+                    .accessibilityLabel("ทำเครื่องหมาย \(markerKind.label)")
+                    .accessibilityHint("หมุน Digital Crown เพื่อเปลี่ยนเป็น จุดสำคัญ งานที่ต้องทำ มติ หรือคำถาม")
+                    .accessibilityAdjustableAction { direction in
+                        let count = MarkerKind.allCases.count
+                        markerIndex = (markerIndex + (direction == .increment ? 1 : count - 1)) % count
+                    }
 
                     Button("หยุด", systemImage: "stop.fill", action: recorder.stop)
                         .buttonStyle(.glassProminent)
@@ -55,6 +77,16 @@ struct RecordingView: View {
             }
         }
         .toolbarVisibility(.hidden, for: .navigationBar)
+        .focusable()
+        .digitalCrownRotation(
+            detent: $markerIndex,
+            from: 0,
+            through: MarkerKind.allCases.count - 1,
+            by: 1,
+            sensitivity: .low,
+            isContinuous: true
+        )
         .sensoryFeedback(.impact, trigger: markerCount)
+        .sensoryFeedback(.selection, trigger: markerIndex)
     }
 }

@@ -126,9 +126,16 @@ struct TranscriptSection: View {
         case .note(let text):
             HStack(alignment: .firstTextBaseline) {
                 timeButton(line.start)
-                Label(text, systemImage: "note.text")
-                    .foregroundStyle(.secondary)
-                    .accessibilityLabel("โน้ตของคุณ: \(text)")
+                if let kind = MarkerKind(noteText: text) {
+                    Label(kind.label, systemImage: kind.systemImage)
+                        .foregroundStyle(.yellow)
+                        .font(.subheadline)
+                        .accessibilityLabel("เครื่องหมาย \(kind.label)")
+                } else {
+                    Label(text, systemImage: "note.text")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("โน้ตของคุณ: \(text)")
+                }
             }
         case .marker:
             HStack {

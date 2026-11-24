@@ -7,7 +7,8 @@ struct NotesSection: View {
 
     var body: some View {
         Section {
-            ForEach(meeting.timedNotes, id: \.self) { note in
+            // Marker types from the Watch (✅ ⚖️ ❓) are listed in MarkersSection, not here.
+            ForEach(meeting.timedNotes.filter { MarkerKind(noteText: $0.text) == nil }, id: \.self) { note in
                 Button {
                     player.seek(to: note.time)
                 } label: {

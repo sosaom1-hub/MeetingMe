@@ -32,7 +32,12 @@ nonisolated struct TranscriptLine: Identifiable, Hashable, Sendable {
             switch line.kind {
             case .speech(let text): "[\(line.timestamp)] \(text)"
             case .marker: "[\(line.timestamp)] ⭐ จุดสำคัญ"
-            case .note(let text): "[\(line.timestamp)] 📝 โน้ตผู้บันทึก: \(text)"
+            case .note(let text):
+                if let kind = MarkerKind(noteText: text) {
+                    "[\(line.timestamp)] \(kind.emoji) ผู้บันทึกทำเครื่องหมาย: \(kind.label)"
+                } else {
+                    "[\(line.timestamp)] 📝 โน้ตผู้บันทึก: \(text)"
+                }
             case .pending(let chunk): "[\(line.timestamp)] (ส่วนที่ \(chunk) ยังไม่ได้ถอดเสียง)"
             }
         }
