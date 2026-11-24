@@ -2,6 +2,8 @@ import SwiftUI
 
 struct MeetingDetailView: View {
     @Bindable var meeting: Meeting
+    /// Called after the meeting is deleted, so a split view can clear its selection.
+    var onDeleted: () -> Void = {}
 
     @Environment(\.dismiss) private var dismiss
     @State private var player = ChunkPlayer()
@@ -59,7 +61,10 @@ struct MeetingDetailView: View {
         .sheet(isPresented: $isShowingSummary) { SummarySheet(meeting: meeting) }
         .sheet(isPresented: $isShowingExport) { ExportSheet(meeting: meeting) }
         .sheet(isPresented: $isShowingAsk) { AskAISheet(initialSelection: [meeting.id]) }
-        .meetingDeleteConfirmation(for: $pendingDelete) { dismiss() }
+        .meetingDeleteConfirmation(for: $pendingDelete) {
+            onDeleted()
+            dismiss()
+        }
         .task(id: meeting.chunks?.count) {
             await player.load(meeting.sortedChunks.map { meeting.directory.appending(path: $0.fileName) })
         }

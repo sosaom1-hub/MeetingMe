@@ -3,11 +3,13 @@ import SwiftUI
 
 struct MeetingList: View {
     @Query private var meetings: [Meeting]
+    @Binding var selection: Meeting?
     @State private var pendingDelete: Meeting?
     private let isSearching: Bool
     private let query: String
 
-    init(searchText: String, sort: LibrarySort) {
+    init(searchText: String, sort: LibrarySort, selection: Binding<Meeting?>) {
+        _selection = selection
         let text = searchText.trimmingCharacters(in: .whitespaces)
         let lowered = text.lowercased()
         // Title, plus the lowercased index of transcript, summary and notes (see Meeting.refreshSearchText).
@@ -34,7 +36,7 @@ struct MeetingList: View {
                 )
             }
         } else {
-            List(meetings) { meeting in
+            List(meetings, selection: $selection) { meeting in
                 NavigationLink(value: meeting) {
                     MeetingRow(meeting: meeting, snippet: isSearching ? meeting.snippet(matching: query) : nil)
                 }
@@ -44,7 +46,10 @@ struct MeetingList: View {
                     }
                 }
             }
-            .meetingDeleteConfirmation(for: $pendingDelete)
+            .meetingDeleteConfirmation(for: $pendingDelete) {
+                // The deleted meeting may be the one open in the detail column.
+                selection = nil
+            }
         }
     }
 }

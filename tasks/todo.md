@@ -209,7 +209,7 @@ Tests run only when the user asks.
   - Verify: import of an m4a/mp3 in simulator, then transcribe.
   - Size: M
 
-- [ ] **Task 26: iPad layout**
+- [x] **Task 26: iPad layout** (done 2026-11-24; NavigationSplitView, all iPad orientations; checked on iPad Pro 13" simulator)
   - Acceptance: NavigationSplitView library + detail on iPad; same features at every size.
   - Verify: iPad simulator screenshots.
   - Size: S

@@ -13,6 +13,8 @@ struct LibraryView: View {
     @Environment(IntentRequests.self) private var requests
 
     @State private var searchText = ""
+    /// Meeting shown in the detail column (iPad) or pushed (iPhone).
+    @State private var selection: Meeting?
     @State private var sort = LibrarySort.date
     @State private var startRequested = false
     @State private var isShowingRecorder = false
@@ -24,8 +26,8 @@ struct LibraryView: View {
     @Environment(\.modelContext) private var context
 
     var body: some View {
-        NavigationStack {
-            MeetingList(searchText: searchText, sort: sort)
+        NavigationSplitView {
+            MeetingList(searchText: searchText, sort: sort, selection: $selection)
                 .navigationTitle("บันทึกประชุม")
                 .searchable(text: $searchText, prompt: "ค้นหาในชื่อ, transcript, สรุป, โน้ต")
                 .toolbar {
@@ -47,7 +49,6 @@ struct LibraryView: View {
                         }
                     }
                 }
-                .navigationDestination(for: Meeting.self) { MeetingDetailView(meeting: $0) }
                 .safeAreaBar(edge: .bottom) {
                     Button {
                         startRequested = true
@@ -62,6 +63,13 @@ struct LibraryView: View {
                     .tint(Theme.recording)
                     .padding(.bottom)
                 }
+        } detail: {
+            if let selection {
+                MeetingDetailView(meeting: selection) { self.selection = nil }
+                    .id(selection.id)
+            } else {
+                ContentUnavailableView("เลือกการประชุม", systemImage: "waveform", description: Text("เลือกจากรายการด้านซ้าย หรือกด “บันทึกใหม่”"))
+            }
         }
         // "เริ่มบันทึกประชุม" from Siri, Shortcuts, or the iPhone Action button.
         .onChange(of: requests.startRequestedAt, initial: true) {

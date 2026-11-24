@@ -42,12 +42,14 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(BUNDLE_PREFIX)
-        TARGETED_DEVICE_FAMILY: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: MeetingMe
         INFOPLIST_KEY_NSMicrophoneUsageDescription: แอปใช้ไมโครโฟนเพื่อบันทึกเสียงประชุมเมื่อคุณกดเริ่มบันทึกเท่านั้น เสียงจะถูกเก็บไว้ในเครื่องของคุณ
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        # iPad: every orientation, so the app works in Split View and Stage Manager.
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
     dependencies:
       - target: MeetingRecorder Watch App
 
